@@ -16,7 +16,6 @@ class TypeAction(Enum):
         OS = "Comandos do sistema"
         CLICK = "Click do mouse"
         WRITE = "Escrever"
-        PROGRAM = "Abrir programa"
         COMAND = "Comando de teclado"
         LIST = "Lista"
 
