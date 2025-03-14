@@ -4,10 +4,11 @@ from time import sleep
 from app.utils.util import repositories, os
 
 class SelectionPrint(QMainWindow):
-    def __init__(self, screen_geometry, parent, home):
+    def __init__(self, screen_geometry, fun):
         super().__init__()
-        self.parrent = parent
-        self.home = home
+        if not callable(fun):
+            raise TypeError(f"fun deve ser uma função, mas foi passado: {type(fun).__name__}")
+        self.fun = fun
 
         self.setWindowTitle("Tela Completa")
 
@@ -90,7 +91,5 @@ class SelectionPrint(QMainWindow):
             print(f"Captura de tela salva como 'screenshot{count}.png'")
 
             self.close_windows()
-            self.parrent.set_text_input_trigger_active_type_action(f'screenshot{count}.png')
-            self.parrent.show()
-            self.home.show()   
+            self.fun(f'screenshot{count}.png')
             

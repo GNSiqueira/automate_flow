@@ -5,8 +5,8 @@ def repositories():
         repository = os.path.join(os.getenv('APPDATA'), 'automate_flow')
     else:  # Unix (Linux, macOS)
         repository = os.path.join(os.path.expanduser('~'), '.config', 'automate_flow')
-        repository = 'config'
     try:
+        repository = 'config'
         if os.path.exists(repository):
             print('existe')
         else: 

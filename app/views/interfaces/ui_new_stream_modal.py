@@ -50,7 +50,7 @@ class Modal_New_Stream(QMainWindow):
 
         self.section2_type_trigger_label = QLabel("Tipo de Gatilho")
         self.section2_type_trigger = QComboBox(placeholderText='Selecionar...')
-        self.section2_type_trigger.currentIndexChanged.connect(self.active_trigger)
+        self.section2_type_trigger.currentIndexChanged.connect(self.active_input_trigger)
         for value in TypeTrigger:
             self.section2_type_trigger.addItem(value.value, value.name)
 
@@ -58,7 +58,7 @@ class Modal_New_Stream(QMainWindow):
         self.section2_label_trigger = QLabel("Gatilho")
         
         self.section2_input_trigger = QLineEdit(placeholderText='Gatilho...')
-        self.section2_input_trigger.mousePressEvent = self.input_trigger()
+        self.section2_input_trigger.mousePressEvent = self.active_type_action()
         self.section2_input_trigger.setEnabled(False)
         
         self.section2_input_action = QLineEdit(placeholderText='Ação...')
@@ -100,8 +100,8 @@ class Modal_New_Stream(QMainWindow):
 
         self.setCentralWidget(self.central_widget)
 
-    # Ativação do Input Trigger
-    def active_trigger(self, index):
+    # Active do Input Trigger
+    def active_input_trigger(self, index):
         index = self.section2_type_trigger.itemData(index)
         
         if index == TypeTrigger.IMAGE.name:
@@ -110,18 +110,21 @@ class Modal_New_Stream(QMainWindow):
             self.section2_input_trigger.setPlaceholderText('Selecionar imagem ...')
             self.section2_input_trigger.setEnabled(True)
             self.section2_type_action.setEnabled(False)
+            self.section2_input_action.setEnabled(False)
         
         elif index == TypeTrigger.MOUSE.name:
             self.type_trigger = TypeTrigger.MOUSE
             self.section2_input_trigger.setText('Clique do mouse')
             self.section2_input_trigger.setEnabled(False)
             self.section2_type_action.setEnabled(True)
+            self.section2_input_action.setEnabled(False)
         
         elif index == TypeTrigger.KEY.name:
             self.type_trigger = TypeTrigger.KEY
             self.section2_input_trigger.setText('Tecla F1')
             self.section2_input_trigger.setEnabled(False)
             self.section2_type_action.setEnabled(True)
+            self.section2_input_action.setEnabled(False)
         
         elif index == TypeTrigger.TIME.name:
             self.type_trigger = TypeTrigger.TIME
@@ -129,6 +132,37 @@ class Modal_New_Stream(QMainWindow):
             self.section2_input_trigger.setText('')
             self.section2_input_trigger.setEnabled(True)
             self.section2_type_action.setEnabled(False)
+            self.section2_input_action.setEnabled(False)
+
+    # Active do TypeAction
+    # Active do TypeAction
+    def active_type_action(self):
+        self.windows_screen = []
+
+        def mousePressEvent(event): 
+            if event.button() == Qt.LeftButton:
+                if self.type_trigger == TypeTrigger.IMAGE:
+                    from app import app
+                    def finalityPrint(text):
+                        self.show()
+                        self.home.show()
+                        self.section2_input_trigger.setText(text)
+                        self.section2_type_action.setEnabled(True)
+                    self.hide()
+                    self.home.hide()
+                    for screen in app.screens():
+                        screen_geometry = screen.geometry()
+                        window = SelectionPrint(screen_geometry, fun=finalityPrint)
+                        self.windows_screen.append(window)
+                    for window in self.windows_screen:
+                        window.set_windows(self.windows_screen)
+                        window.show()
+
+                if self.type_trigger == TypeTrigger.TIME:
+                    # Código para manipular a ação do tempo
+                    pass
+
+        return mousePressEvent
 
     # Active do Input Action
     def active_action(self, index): 
@@ -167,27 +201,5 @@ class Modal_New_Stream(QMainWindow):
 
         return mousePressEvent
 
-    # Ação do Input Trigger
-    def input_trigger(self): 
-        self.windows_screen = []
-
-        def mousePressEvent(event): 
-            if event.button() == Qt.LeftButton:
-                if self.type_trigger == TypeTrigger.IMAGE:
-                    from app import app
-                    self.hide()
-                    self.home.hide()
-                    for screen in app.screens():
-                        screen_geometry = screen.geometry()
-                        window = SelectionPrint(screen_geometry, parent=self, home = self.home)
-                        self.windows_screen.append(window)
-                    for window in self.windows_screen:
-                        window.set_windows(self.windows_screen)
-                        window.show()
-
-        return mousePressEvent
-    
     # Definir texto do Input Trigger
-    def set_text_input_trigger_active_type_action(self, text): 
-        self.section2_input_trigger.setText(text)
-        self.section2_type_action.setEnabled(True)
+    
