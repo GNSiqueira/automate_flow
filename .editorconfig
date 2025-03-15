@@ -1,0 +1,45 @@
+# Indica que este é o arquivo principal para configurações de EditorConfig
+root = true
+
+# Configurações gerais para todos os arquivos
+[*]
+# Define a codificação padrão como UTF-8
+charset = utf-8
+
+# Estilo de fim de linha como LF (compatível com Unix e padrão recomendado)
+end_of_line = lf
+
+# Remove espaços em branco desnecessários ao final das linhas
+trim_trailing_whitespace = true
+
+# Insere uma nova linha ao final de cada arquivo, conforme boas práticas
+insert_final_newline = true
+
+# Define o tamanho da indentação como 4 espaços, padrão amplamente utilizado
+indent_size = 4
+
+# Usa espaços para indentação em vez de tabulação
+indent_style = space
+
+# Configurações específicas para arquivos Python
+[*.py]
+# Segue as boas práticas da PEP 8 para indentação
+indent_size = 4
+indent_style = space
+
+# Configurações específicas para arquivos JavaScript
+[*.js]
+# Indentação de 2 espaços, amplamente adotada em projetos JS
+indent_size = 2
+indent_style = space
+
+# Configurações específicas para arquivos JSON
+[*.json]
+# Recomendação para arquivos JSON: 2 espaços
+indent_size = 2
+indent_style = space
+
+# Configurações específicas para arquivos Markdown
+[*.md]
+# Permite espaços finais, pois podem ser necessários para quebras de linha
+trim_trailing_whitespace = false
