@@ -7,11 +7,11 @@ from app.utils.qt_table import expanding_header_table
 from app.views.interfaces.selection_print import SelectionPrint
 from app.views.interfaces.selection_click import SelectionClick
 
-class Modal_New_Stream(QWidget):
-    def __init__(self, home_hide_or_show=None):
+class Modal_New_Stream(QMainWindow):
+    def __init__(self, parent=None):
         super().__init__()
 
-        self.home = home_hide_or_show
+        self.home = parent
         self.type_trigger = None
 
         self.title_stream = "Not Defined"
@@ -36,10 +36,11 @@ class Modal_New_Stream(QWidget):
 
         self.section2 = VLayout(margin=10)
 
+
         self.section2_type_action_label = QLabel("Tipo Ação")
         self.section2_type_action = QComboBox(placeholderText='Selecionar...')
         self.section2_type_action.setEnabled(False)
-        self.section2_type_action.currentIndexChanged.connect(self.select_type_action)
+        self.section2_type_action.currentIndexChanged.connect(self.active_action)
         for value in TypeAction:
             self.section2_type_action.addItem(value.value, value.name)
 
@@ -96,66 +97,7 @@ class Modal_New_Stream(QWidget):
         self.central_layout.addLayout(self.section)
         self.central_layout.addLayout(self.section_bottom)
 
-        self.setLayout(self.central_layout)
-
-    # ====================================================================================
-    #                                FUNCTION TO CLASS
-    # ====================================================================================
-    def eventFilter(self, obj, event):
-        """
-            Objetivo da função é ser acionado assim que algum evendo for usado em alguma parte do sistema(Apenas se for instalado)
-
-            + Se o evento for, precionar o mouse && o objeto for o Input Trigger
-                Irá abrir a janela de print.
-        """
-        if event.type() == QEvent.MouseButtonPress and obj == self.section2_input_trigger:
-            print('Foi clicado!')
-            windows_screen = []
-            if self.type_trigger == TypeTrigger.IMAGE:
-                from app import app
-                def finalityPrint(text):
-                    self.show()
-                    self.section2_input_trigger.setText(text)
-                    self.section2_type_action.setEnabled(True)
-                self.hide()
-                for screen in app.screens():
-                    screen_geometry = screen.geometry()
-                    window = SelectionPrint(screen_geometry, fun=finalityPrint)
-                    windows_screen.append(window)
-                for window in windows_screen:
-                    window.set_windows(windows_screen)
-                    window.show()
-            self.section2_input_trigger.removeEventFilter(self)
-
-        return super().eventFilter(obj, event)
-
-    def validade_input(self, text):
-        try:
-            numero = float(text)
-            texto = text.replace('.', '')
-            texto = texto[:-2] + '.' + texto[-2:]
-            if texto[0] == '0' and len(texto) != 5:
-                texto = texto[1:]
-            elif len(texto) == 4:
-                texto = '0' + texto
-            elif len(texto) == 3:
-                texto = '00' + texto
-
-            if len(texto) != 5 and texto[:2] == '00':
-                for num in texto:
-                    if num == '0':
-                        texto = texto[1:]
-                    else:
-                        break
-
-            if texto != '00.00':
-                self.section2_type_action.setEnabled(True)
-            else:
-                self.section2_type_action.setEnabled(False)
-
-            self.section2_input_trigger.setText(texto)
-        except:
-            self.section2_input_trigger.setText('00.00')
+        self.setCentralWidget(self.central_widget)
 
 
     def select_type_trigger(self, index):
@@ -183,48 +125,81 @@ class Modal_New_Stream(QWidget):
         '''
         self.section2_type_action.setEnabled(False)
         self.section2_input_action.setEnabled(False)
-        self.section2_input_trigger.setEnabled(False)
         index = self.section2_type_trigger.itemData(index)
 
         if index == TypeTrigger.IMAGE.name:
             self.type_trigger = TypeTrigger.IMAGE
-            self.section2_input_trigger.textChanged.disconnect()
             self.section2_input_trigger.setText('')
             self.section2_input_trigger.setPlaceholderText('Selecionar imagem ...')
-            self.section2_input_trigger.installEventFilter(self)
+            #self.section2_input_trigger.installEventFilter(self)
             self.section2_input_trigger.setEnabled(True)
 
         elif index == TypeTrigger.MOUSE.name:
             self.type_trigger = TypeTrigger.MOUSE
-            self.section2_input_trigger.removeEventFilter(self)
-            self.section2_input_trigger.textChanged.disconnect()
             self.section2_input_trigger.setText('Clique do mouse')
             self.section2_input_trigger.setEnabled(False)
-            self.section2_type_action.setEnabled(True)
 
         elif index == TypeTrigger.KEY.name:
             self.type_trigger = TypeTrigger.KEY
-            self.section2_input_trigger.removeEventFilter(self)
-            self.section2_input_trigger.textChanged.disconnect()
             self.section2_input_trigger.setText('Tecla F1')
             self.section2_input_trigger.setEnabled(False)
-            self.section2_type_action.setEnabled(True)
 
         elif index == TypeTrigger.TIME.name:
             self.type_trigger = TypeTrigger.TIME
-            self.section2_input_trigger.removeEventFilter(self)
-            self.section2_input_trigger.setText('00.00')
+            self.section2_input_trigger.setPlaceholderText('Definir tempo')
+            self.section2_input_trigger.setText('')
             self.section2_input_trigger.setEnabled(True)
-            self.section2_input_trigger.textChanged.connect(lambda text = self.section2_input_trigger.text: self.validade_input(text))
 
-    def select_type_action(self, index):
+    def eventFilter(self, obj, event):
+        if event.type() == QEvent.MouseButtonPress:
+            print('Foi clicado!')
+
+        return super().eventFilter(obj, event)
+
+
+
+
+
+
+
+    # Active do TypeAction
+    def open_printscreeen(self):
+        self.windows_screen = []
+
+        def mousePressEvent(event):
+            if event.button() == Qt.LeftButton:
+                if self.type_trigger == TypeTrigger.IMAGE:
+                    from app import app
+                    def finalityPrint(text):
+                        self.show()
+                        self.home.show()
+                        self.section2_input_trigger.setText(text)
+                        self.section2_type_action.setEnabled(True)
+                    self.hide()
+                    self.home.hide()
+                    for screen in app.screens():
+                        screen_geometry = screen.geometry()
+                        window = SelectionPrint(screen_geometry, fun=finalityPrint)
+                        self.windows_screen.append(window)
+                    for window in self.windows_screen:
+                        window.set_windows(self.windows_screen)
+                        window.show()
+
+                if self.type_trigger == TypeTrigger.TIME:
+                    # Código para manipular a ação do tempo
+                    pass
+
+        return mousePressEvent
+
+    # Active do Input Action
+    def active_action(self, index):
         index = self.section2_type_action.itemData(index)
         self.type_action = None
 
         if index == TypeAction.CLICK.name:
             self.type_action = TypeAction.CLICK
             self.section2_input_action.setEnabled(True)
-            
+            self.section2_input_action.mousePressEvent = self.input_action()
 
         elif index == TypeAction.COMAND.name:
             self.type_action = TypeAction.COMAND
@@ -235,6 +210,22 @@ class Modal_New_Stream(QWidget):
         elif index == TypeAction.OS.name:
             self.type_action = TypeAction.OS
             pass
+        elif index == TypeAction.PROGRAM.name:
+            self.type_action = TypeAction.PROGRAM
+            pass
         elif index == TypeAction.WRITE.name:
             self.type_action = TypeAction.WRITE
             pass
+
+    # Ação do Input Action
+    def input_action(self):
+        def mousePressEvent(event):
+            if event.button() == Qt.LeftButton:
+                if self.type_action == TypeAction.CLICK:
+                    pass
+                elif self.type_action == TypeAction.CLICK:
+                    pass
+
+        return mousePressEvent
+
+    # Definir texto do Input Trigger

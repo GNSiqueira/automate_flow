@@ -1,3 +1,4 @@
+from typing import Literal
 from app.utils.qt_layout import *
 from qt_core import *
 from app.views.ui import Ui
@@ -5,12 +6,12 @@ from app.views.interfaces.ui_new_stream_modal import Modal_New_Stream
 from app.utils.enums import Layout, Alignment
 from app.utils.qt_table import *
 
-class Home(Ui): 
+class Home(Ui):
     def __init__(self):
         super().__init__(layout=Layout.HORIZONTAL, larg=800, alt=500)
 
         self.section1 = VLayout(margin=20, spacing=10)
-        
+
         self.section1_table = QTableWidget(2, 2)
         self.section1_table.setHorizontalHeaderLabels(['Selecionar', 'Fluxo'])
 
@@ -43,7 +44,21 @@ class Home(Ui):
 
         self.setup(self.section1, expanding=2)
         self.setup(self.section2, expanding=1)
-    
+
+        self.show()
+
     def open_new_stream_modal(self):
-         modal = Modal_New_Stream(self)
-         modal.show()
+        state_modal = self.state_modal(self)
+        state_modal.hide()
+        self.nova_janela = Modal_New_Stream(state_modal)
+        self.nova_janela.show()
+
+    class state_modal:
+        def __init__(self, parent):
+            self.parent = parent
+
+        def hide(self):
+            self.parent.hide()
+
+        def show(self):
+            self.parent.show()

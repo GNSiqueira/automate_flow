@@ -1,95 +1,76 @@
-from qt_core import *
-from PIL import ImageGrab
-from time import sleep
-from app.utils.util import repositories, os
+import sys
+from PySide6.QtCore import Qt, QPoint
+from PySide6.QtWidgets import QApplication, QWidget, QLabel, QVBoxLayout
+from PySide6.QtGui import QGuiApplication
 
-class SelectionPrint(QMainWindow):
-    def __init__(self, screen_geometry, fun):
+class ClickWindow(QWidget):
+    def __init__(self):
         super().__init__()
-        if not callable(fun):
-            raise TypeError(f"fun deve ser uma função, mas foi passado: {type(fun).__name__}")
-        self.fun = fun
 
-        self.setWindowTitle("Tela Completa")
+        # Defina o título da janela
+        self.setWindowTitle("Capturar Clique e Tela")
+        self.setGeometry(100, 100, 400, 400)  # Posição e tamanho da janela
 
-        self.windows_screen = None
+        # Adiciona um QLabel para mostrar as coordenadas
+        self.label = QLabel("Clique na janela", self)
+        self.label.setAlignment(Qt.AlignCenter)
+        self.label.setGeometry(100, 180, 200, 40)
 
-        central_widget = QWidget(self)
-        self.setCentralWidget(central_widget)
+        # Adiciona um QLabel para mostrar as informações sobre as telas
+        self.info_label = QLabel(self)
+        self.info_label.setAlignment(Qt.AlignLeft)
+        self.info_label.setGeometry(10, 10, 380, 160)
 
-        self.setGeometry(screen_geometry)
+        layout = QVBoxLayout(self)
+        layout.addWidget(self.label)
+        layout.addWidget(self.info_label)
+        self.setLayout(layout)
 
-        self.setWindowState(Qt.WindowFullScreen)
-
-        self.setWindowOpacity(0.5)
-
-        self.start_point = None
-        self.end_point = None
+        # Atualiza a informação sobre as telas
+        self.update_screen_info()
 
     def mousePressEvent(self, event):
-        if event.button() == Qt.LeftButton:
-            self.start_point = event.pos()
+        # Captura as coordenadas do clique dentro da janela
+        x = event.x()
+        y = event.y()
 
-    def mouseMoveEvent(self, event):
-        if event.buttons() & Qt.LeftButton:
-            self.end_point = event.pos()
-            self.update()
+        # Obtém a posição global do clique
+        screen_number = self.get_screen_number(x, y)
 
-    def mouseReleaseEvent(self, event):
-        if event.button() == Qt.LeftButton:
-            self.end_point = event.pos()
-            self.update()
-            self.capture_screen()
-            self.clear_lines()
+        # Exibe as coordenadas e o número da tela
+        self.label.setText(f"Clicou em: ({x}, {y})\nNa tela: {screen_number + 1}")
 
-    def paintEvent(self, event):
-        if self.start_point is not None and self.end_point is not None:
-            painter = QPainter(self)
-            pen = QPen(Qt.red, 2)
-            painter.setPen(pen)
+    def get_screen_number(self, x, y):
+        # Obtém a posição global do clique
+        global_pos = self.mapToGlobal(QPoint(x, y))
 
-            rect = QRect(self.start_point, self.end_point)
-            painter.drawRect(rect)
+        # Obtém todos os monitores conectados
+        screens = QGuiApplication.screens()
 
-    def set_windows(self, data):
-        self.windows_screen = data
-    
-    def close_windows(self):
-        for window in self.windows_screen:
-            window.close()
-    
-    def clear_lines(self):
-        self.start_point = None
-        self.end_point = None
-        self.repaint()
+        for i, screen in enumerate(screens):
+            screen_rect = screen.geometry()
+            if screen_rect.contains(global_pos):  # Verifica se a posição do clique está dentro da área do monitor
+                return i
+        return -1  # Caso não encontre a tela
 
-    def capture_screen(self):
-        if self.start_point is not None and self.end_point is not None:
-            self.setWindowOpacity(0)
-            self.hide()
+    def update_screen_info(self):
+        # Obtém todos os monitores conectados
+        screens = QGuiApplication.screens()
+        screen_info = ""
 
-            sleep(0.2)
+        for i, screen in enumerate(screens):
+            screen_rect = screen.geometry()
+            screen_info += f"Tela {i+1}: Posição({screen_rect.x()}, {screen_rect.y()}) - Tamanho({screen_rect.width()}x{screen_rect.height()})\n"
 
-            x1 = self.geometry().x() + self.start_point.x()
-            y1 = self.geometry().y() + self.start_point.y()
-            x2 = self.geometry().x() + self.end_point.x()
-            y2 = self.geometry().y() + self.end_point.y()
+        # Exibe as informações sobre as telas
+        self.info_label.setText(screen_info)
 
-            x1, x2 = min(x1, x2), max(x1, x2)
-            y1, y2 = min(y1, y2), max(y1, y2)
+# Cria o aplicativo PySide6
+app = QApplication(sys.argv)
 
-            bbox = (x1, y1, x2, y2)
-            screenshot = ImageGrab.grab(bbox)
-            
-            repository, repository_image = repositories()
+# Cria a janela
+window = ClickWindow()
+window.show()
 
-            count = 0
-            while os.path.exists(f"{repository_image}/screenshot{count}.png"):
-                count += 1
-
-            screenshot.save(f"{repository_image}/screenshot{count}.png")
-            print(f"Captura de tela salva como 'screenshot{count}.png'")
-
-            self.close_windows()
-            self.fun(f'screenshot{count}.png')
-            
+# Executa o loop de eventos
+sys.exit(app.exec())

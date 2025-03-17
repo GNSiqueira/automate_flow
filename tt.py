@@ -1,19 +1,58 @@
-import pyautogui
-import keyboard
+from PySide6.QtCore import Qt, QEvent, QObject
+from PySide6.QtWidgets import QApplication, QWidget, QLineEdit, QPushButton, QVBoxLayout
 
-def on_click():
-    # Captura a posição do mouse
-    x, y = pyautogui.position()
-    print(f"Posição do mouse: ({x}, {y})")
+class EventFilter(QObject):
+    def __init__(self):
+        super().__init__()
 
-print("Aguardando cliques do mouse... Pressione Ctrl+C para interromper.")
+    def eventFilter(self, obj, event):
+        """
+        Sobrescreva o método eventFilter para capturar os eventos.
+        """
+        if isinstance(obj, QLineEdit):
+            if event.type() == QEvent.MouseButtonPress:
+                print("Clique detectado no QLineEdit!")
+                return True  # Evento tratado
 
-try:
-    while True:
-        # Verifica se o botão esquerdo do mouse foi clicado
-        if keyboard.is_pressed('left mouse'):
-            on_click()
-            # Adiciona um pequeno atraso para evitar múltiplas detecções
-            keyboard.wait('left mouse', suppress=False)
-except KeyboardInterrupt:
-    print("Monitoramento interrompido.")
+            if event.type() == QEvent.KeyPress:
+                print(f"Tecla pressionada no QLineEdit: {event.key()}")
+                return True  # Evento tratado
+
+        elif isinstance(obj, QPushButton):
+            if event.type() == QEvent.MouseButtonPress:
+                print("Clique detectado no QPushButton!")
+                return True  # Evento tratado
+
+        return super().eventFilter(obj, event)  # Deixa o evento passar
+
+class MyWidget(QWidget):
+    def __init__(self):
+        super().__init__()
+
+        self.setWindowTitle("Event Filter Example")
+        self.setGeometry(100, 100, 400, 300)
+
+        # Criando dois widgets diferentes
+        self.line_edit = QLineEdit(self)
+        self.line_edit.setPlaceholderText("Clique aqui ou pressione uma tecla!")
+
+        self.button = QPushButton("Clique no botão!", self)
+
+        # Criando e registrando o filtro de eventos
+        self.event_filter = EventFilter()
+        self.line_edit.installEventFilter(self.event_filter)  # Filtro para QLineEdit
+        self.button.installEventFilter(self.event_filter)     # Filtro para QPushButton
+
+        # Layout para adicionar os widgets
+        layout = QVBoxLayout(self)
+        layout.addWidget(self.line_edit)
+        layout.addWidget(self.button)
+
+if __name__ == "__main__":
+    app = QApplication([])
+
+    # Criar e exibir o widget
+    widget = MyWidget()
+    widget.show()
+
+    app.exec()
