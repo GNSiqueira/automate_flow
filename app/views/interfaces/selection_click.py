@@ -22,7 +22,7 @@ class SelectionClick(QMainWindow):
 
         self.setWindowState(Qt.WindowFullScreen)
 
-        self.setWindowOpacity(0.01)
+        self.setWindowOpacity(0.3)
 
         self.show()
 
@@ -35,7 +35,7 @@ class SelectionClick(QMainWindow):
             for window in self.all_windows:
                 window.close()
             texto = (f"x={x + self.px}, y={y + self.py}")
-            self.fun(texto, y, x)
+            self.fun(texto, x, y)
 
 
 
