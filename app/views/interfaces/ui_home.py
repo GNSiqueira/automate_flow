@@ -8,7 +8,7 @@ from app.utils.qt_table import *
 
 class Home(Ui):
     def __init__(self):
-        super().__init__(layout=Layout.HORIZONTAL, larg=800, alt=500)
+        super().__init__(layout=Layout.HORIZONTAL, larg=800, alt=500, FixedSize=True)
 
         self.section1 = VLayout(margin=20, spacing=10)
 

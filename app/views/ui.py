@@ -1,6 +1,7 @@
 from qt_core import QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QFrame
 from app.utils.enums import Layout
-
+from app.utils.util import screen_center
+from app import app
 class Ui(QMainWindow):
     def __init__(self, alt=700, larg=500, FixedSize=False, layout: Layout = Layout.VERTICAL):
         super().__init__()
@@ -8,11 +9,15 @@ class Ui(QMainWindow):
         if not self.objectName():
             self.setObjectName('Automate Flow')
 
-        # Configurações da janela
+        center_x, center_y = screen_center(larg, alt)
+
         if FixedSize:
+            self.setGeometry(center_x, center_y, larg, alt)
             self.setFixedSize(larg, alt)
         else:
-            self.setGeometry(100, 100, larg, alt)
+            self.setGeometry(center_x, center_y, larg, alt)
+
+
 
         # Configurações do layout principal
         self.__widget = QWidget(self)

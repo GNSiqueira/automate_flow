@@ -1,8 +1,12 @@
 from qt_core import *
 
 class SelectionClick(QMainWindow):
-    def __init__(self, screen_geometry, all_windows, x, y):
+    def __init__(self, screen_geometry, all_windows, x, y, fun):
         super().__init__()
+
+        if not callable(fun):
+            raise TypeError(f"fun deve ser uma função, mas foi passado: {type(fun).__name__}")
+        self.fun = fun
 
         self.setWindowTitle("Tela Completa")
 
@@ -28,7 +32,10 @@ class SelectionClick(QMainWindow):
             x = int(position.x())
             y = int(position.y())
 
-            
-
             for window in self.all_windows:
                 window.close()
+            texto = (f"x={x + self.px}, y={y + self.py}")
+            self.fun(texto, y, x)
+
+
+

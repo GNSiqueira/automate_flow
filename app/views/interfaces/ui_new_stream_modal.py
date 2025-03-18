@@ -16,6 +16,8 @@ class Modal_New_Stream(QWidget):
         self.title_stream = "Not Defined"
         self.setWindowTitle(f"Automate Flow - {self.title_stream}")
         self.setWindowModality(Qt.ApplicationModal)
+        center_x, center_y = screen_center(800, 430)
+        self.setGeometry(center_x, center_y, 800, 430)
         self.setFixedSize(800, 430)
 
         self.central_widget = QWidget()
@@ -84,10 +86,10 @@ class Modal_New_Stream(QWidget):
         self.section2.addWidget(self.section2_label_action)
         self.section2.addWidget(self.section2_input_action)
 
-        self.section_bottom.addWidget(self.section_bottom_buttom_add_action)
         self.section_bottom.addWidget(self.section_bottom_buttom_delete_action)
-        self.section_bottom.addWidget(self.section_bottom_buttom_finish_stream)
         self.section_bottom.addWidget(self.section_bottom_buttom_test_stream)
+        self.section_bottom.addWidget(self.section_bottom_buttom_finish_stream)
+        self.section_bottom.addWidget(self.section_bottom_buttom_add_action)
 
         self.section.addLayout(self.section1, 2)
         self.section.addLayout(self.section2, 1)
@@ -124,11 +126,12 @@ class Modal_New_Stream(QWidget):
                 window.set_windows(windows_screen)
                 window.show()
             self.section2_input_trigger.removeEventFilter(self)
-
         elif event.type() == QEvent.MouseButtonPress and obj == self.section2_input_action:
             from app import app
-            def finalityClick(text):
+            def finalityClick(text, x, y):
                 self.section2_input_action.setText(text)
+                self.cordenadas_x = x
+                self.cordenadas_y = y
                 self.show()
                 pass
             windows = []
@@ -225,15 +228,19 @@ class Modal_New_Stream(QWidget):
             self.section2_input_trigger.textChanged.connect(lambda text = self.section2_input_trigger.text: self.validade_input(text))
 
     def select_type_action(self, index):
+
         '''
             O Objetivo dessa função é identificar qual tipo de ação é escolhido e fazer uma ação com base nisso.
 
             + CLICK: Se for Clique tem que abrir a janela para clicar quando for clicado no input.
         '''
+        self.section2_input_action.removeEventFilter(self)
+
         index = self.section2_type_action.itemData(index)
 
         if index == TypeAction.CLICK.name:
             self.section2_input_action.setEnabled(True)
+            self.section2_input_action.installEventFilter(self)
 
 
         elif index == TypeAction.COMAND.name:
