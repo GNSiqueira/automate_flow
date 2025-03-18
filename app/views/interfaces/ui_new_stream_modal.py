@@ -7,9 +7,9 @@ from app.utils.qt_table import expanding_header_table
 from app.views.interfaces.selection_print import SelectionPrint
 from app.views.interfaces.selection_click import SelectionClick
 
-class Modal_New_Stream(QWidget):
+class Modal_New_Stream(Ui):
     def __init__(self, home_hide_or_show=None):
-        super().__init__()
+        super().__init__(alt=800, larg=430, FixedSize=True, layout=Layout.VERTICAL, modal=True)
 
         self.home = home_hide_or_show
 
@@ -20,9 +20,7 @@ class Modal_New_Stream(QWidget):
         self.setGeometry(center_x, center_y, 800, 430)
         self.setFixedSize(800, 430)
 
-        self.central_widget = QWidget()
-        self.central_layout = QVBoxLayout(self.central_widget)
-        self.central_layout.setContentsMargins(15,15,15,15)
+        self.central_layout = VLayout(margin=15)
         self.central_layout.setSpacing(0)
         self.section = HLayout()
         self.section1 = VLayout(margin=10)
@@ -97,7 +95,7 @@ class Modal_New_Stream(QWidget):
         self.central_layout.addLayout(self.section)
         self.central_layout.addLayout(self.section_bottom)
 
-        self.setLayout(self.central_layout)
+        self.setup(self.central_layout)
 
     # ====================================================================================
     #                                FUNCTION TO CLASS
@@ -243,12 +241,12 @@ class Modal_New_Stream(QWidget):
             self.section2_input_action.setEnabled(True)
             self.section2_input_action.installEventFilter(self)
 
-
         elif index == TypeAction.COMAND.name:
             pass
         elif index == TypeAction.LIST.name:
             pass
         elif index == TypeAction.OS.name:
-            pass
+            print('os')
+
         elif index == TypeAction.WRITE.name:
             pass
