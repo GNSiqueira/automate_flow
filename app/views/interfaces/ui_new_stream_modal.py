@@ -12,7 +12,6 @@ class Modal_New_Stream(QWidget):
         super().__init__()
 
         self.home = home_hide_or_show
-        self.type_trigger = None
 
         self.title_stream = "Not Defined"
         self.setWindowTitle(f"Automate Flow - {self.title_stream}")
@@ -111,22 +110,34 @@ class Modal_New_Stream(QWidget):
         if event.type() == QEvent.MouseButtonPress and obj == self.section2_input_trigger:
             print('Foi clicado!')
             windows_screen = []
-            if self.type_trigger == TypeTrigger.IMAGE:
-                from app import app
-                def finalityPrint(text):
-                    self.show()
-                    self.section2_input_trigger.setText(text)
-                    self.section2_type_action.setEnabled(True)
-                self.hide()
-                for screen in app.screens():
-                    screen_geometry = screen.geometry()
-                    window = SelectionPrint(screen_geometry, fun=finalityPrint)
-                    windows_screen.append(window)
-                for window in windows_screen:
-                    window.set_windows(windows_screen)
-                    window.show()
+            from app import app
+            def finalityPrint(text):
+                self.show()
+                self.section2_input_trigger.setText(text)
+                self.section2_type_action.setEnabled(True)
+            self.hide()
+            for screen in app.screens():
+                screen_geometry = screen.geometry()
+                window = SelectionPrint(screen_geometry, fun=finalityPrint)
+                windows_screen.append(window)
+            for window in windows_screen:
+                window.set_windows(windows_screen)
+                window.show()
             self.section2_input_trigger.removeEventFilter(self)
 
+        elif event.type() == QEvent.MouseButtonPress and obj == self.section2_input_action:
+            from app import app
+            def finalityClick(text):
+                self.section2_input_action.setText(text)
+                self.show()
+                pass
+            windows = []
+            self.hide()
+            for screen in app.screens():
+                screen_geometry = screen.geometry()
+                window = SelectionClick(screen_geometry, windows, screen_geometry.x(), screen_geometry.y(), fun=finalityClick)
+                windows.append(window)
+            self.section2_input_action.removeEventFilter(self)
         return super().eventFilter(obj, event)
 
     def validade_input(self, text):
@@ -187,7 +198,6 @@ class Modal_New_Stream(QWidget):
         index = self.section2_type_trigger.itemData(index)
 
         if index == TypeTrigger.IMAGE.name:
-            self.type_trigger = TypeTrigger.IMAGE
             self.section2_input_trigger.textChanged.disconnect()
             self.section2_input_trigger.setText('')
             self.section2_input_trigger.setPlaceholderText('Selecionar imagem ...')
@@ -195,7 +205,6 @@ class Modal_New_Stream(QWidget):
             self.section2_input_trigger.setEnabled(True)
 
         elif index == TypeTrigger.MOUSE.name:
-            self.type_trigger = TypeTrigger.MOUSE
             self.section2_input_trigger.removeEventFilter(self)
             self.section2_input_trigger.textChanged.disconnect()
             self.section2_input_trigger.setText('Clique do mouse')
@@ -203,7 +212,6 @@ class Modal_New_Stream(QWidget):
             self.section2_type_action.setEnabled(True)
 
         elif index == TypeTrigger.KEY.name:
-            self.type_trigger = TypeTrigger.KEY
             self.section2_input_trigger.removeEventFilter(self)
             self.section2_input_trigger.textChanged.disconnect()
             self.section2_input_trigger.setText('Tecla F1')
@@ -211,30 +219,28 @@ class Modal_New_Stream(QWidget):
             self.section2_type_action.setEnabled(True)
 
         elif index == TypeTrigger.TIME.name:
-            self.type_trigger = TypeTrigger.TIME
             self.section2_input_trigger.removeEventFilter(self)
             self.section2_input_trigger.setText('00.00')
             self.section2_input_trigger.setEnabled(True)
             self.section2_input_trigger.textChanged.connect(lambda text = self.section2_input_trigger.text: self.validade_input(text))
 
     def select_type_action(self, index):
+        '''
+            O Objetivo dessa função é identificar qual tipo de ação é escolhido e fazer uma ação com base nisso.
+
+            + CLICK: Se for Clique tem que abrir a janela para clicar quando for clicado no input.
+        '''
         index = self.section2_type_action.itemData(index)
-        self.type_action = None
 
         if index == TypeAction.CLICK.name:
-            self.type_action = TypeAction.CLICK
             self.section2_input_action.setEnabled(True)
-            
+
 
         elif index == TypeAction.COMAND.name:
-            self.type_action = TypeAction.COMAND
             pass
         elif index == TypeAction.LIST.name:
-            self.type_action = TypeAction.LIST
             pass
         elif index == TypeAction.OS.name:
-            self.type_action = TypeAction.OS
             pass
         elif index == TypeAction.WRITE.name:
-            self.type_action = TypeAction.WRITE
             pass

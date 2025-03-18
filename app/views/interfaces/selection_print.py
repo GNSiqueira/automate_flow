@@ -53,11 +53,11 @@ class SelectionPrint(QMainWindow):
 
     def set_windows(self, data):
         self.windows_screen = data
-    
+
     def close_windows(self):
         for window in self.windows_screen:
             window.close()
-    
+
     def clear_lines(self):
         self.start_point = None
         self.end_point = None
@@ -80,7 +80,7 @@ class SelectionPrint(QMainWindow):
 
             bbox = (x1, y1, x2, y2)
             screenshot = ImageGrab.grab(bbox)
-            
+
             repository, repository_image = repositories()
 
             count = 0
