@@ -141,6 +141,7 @@ class Modal_New_Stream(QWidget):
                 window = SelectionClick(screen_geometry, windows, screen_geometry.x(), screen_geometry.y(), fun=finalityClick)
                 windows.append(window)
             self.section2_input_action.removeEventFilter(self)
+            self.section2_input_action.setEnabled(False)
         return super().eventFilter(obj, event)
 
     def validade_input(self, text):
