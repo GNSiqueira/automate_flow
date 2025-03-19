@@ -262,6 +262,7 @@ class Modal_New_Stream(Ui):
             O Objetivo dessa função é identificar qual tipo de ação é escolhido e fazer uma ação com base nisso.
 
             + CLICK: Se for Clique tem que abrir a janela para clicar quando for clicado no input.
+            + COMMAND: Deve abrir uma janela com a seleção dos comandos e talvez até adicionar um comando.
         '''
         self.section2_input_action.removeEventFilter(self)
 
