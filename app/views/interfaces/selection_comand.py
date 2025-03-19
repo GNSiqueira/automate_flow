@@ -86,7 +86,6 @@ class SelectionCommand(Ui):
         self.close()
         CreateCommand(self.fun)
 
-
 class CreateCommand(Ui):
     def __init__(self, fun):
         super().__init__(alt=500, larg=300, FixedSize=True, modal=True)
@@ -314,6 +313,7 @@ class CreateCommand(Ui):
 
     def limpar_command(self):
         self.label.setText('Aqui será mostrado os comandos')
+        self.selector = []
 
     def salvar_command(self):
         texto = " + ".join([f"'{str(seletor)}'" for seletor in self.selector])

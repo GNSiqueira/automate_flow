@@ -41,6 +41,11 @@ class Modal_New_Stream(Ui):
 
         self.section2 = VLayout(margin=10)
 
+        self.section2_input_action = QLineEdit(placeholderText='Ação...')
+        self.section2_input_action.setEnabled(False)
+
+        self.section2_input_trigger = QLineEdit(placeholderText='Gatilho...')
+
         self.section2_type_action_label = QLabel("Tipo Ação")
         self.section2_type_action = QComboBox(placeholderText='Selecionar...')
         self.section2_type_action.currentIndexChanged.connect(self.select_type_action)
@@ -61,12 +66,8 @@ class Modal_New_Stream(Ui):
         self.section2_label_action = QLabel("Ação")
         self.section2_label_trigger = QLabel("Gatilho")
 
-        self.section2_input_trigger = QLineEdit(placeholderText='Gatilho...')
         self.section2_input_trigger.setText('01.00')
         self.section2_input_trigger.textChanged.connect(lambda text = self.section2_input_trigger.text(): self.validade_input(text=text))
-
-        self.section2_input_action = QLineEdit(placeholderText='Ação...')
-        self.section2_input_action.setEnabled(False)
 
         self.section2.setAlignment(Alignment.Top.value)
 
@@ -133,6 +134,7 @@ class Modal_New_Stream(Ui):
                 window.set_windows(windows_screen)
                 window.show()
             self.section2_input_trigger.removeEventFilter(self)
+            return True
 
         elif event.type() == QEvent.MouseButtonPress and obj == self.section2_input_action:
             if self.type_action == TypeAction.CLICK:
@@ -158,7 +160,7 @@ class Modal_New_Stream(Ui):
                     self.section2_input_action.setText(text)
                     self.action = input_action
                 SelectionCommand(finalityCommand)
-
+            return True
 
         return super().eventFilter(obj, event)
 
@@ -225,6 +227,13 @@ class Modal_New_Stream(Ui):
         if self.section2_input_trigger.hasMouseTracking():
             self.section2_input_trigger.removeEventFilter(self)
 
+        if not self.section2_input_trigger.signalsBlocked():
+            try:
+                self.section2_input_trigger.textChanged.disconnect()
+            except TypeError:
+                pass
+
+
         if index == TypeTrigger.IMAGE.name:
             self.type_tigger = TypeTrigger.IMAGE
             self.section2_type_action.setEnabled(False)
@@ -232,12 +241,10 @@ class Modal_New_Stream(Ui):
             self.section2_input_trigger.setPlaceholderText('Selecionar imagem ...')
             self.section2_input_trigger.installEventFilter(self)
             self.section2_input_trigger.setEnabled(True)
-            self.section2_input_trigger.textChanged.disconnect()
 
         elif index == TypeTrigger.MOUSE.name:
             self.type_tigger = TypeTrigger.MOUSE
             self.section2_type_action.setEnabled(False)
-            self.section2_input_trigger.textChanged.disconnect()
             self.section2_input_trigger.setText('Clique do mouse')
             self.section2_input_trigger.setEnabled(False)
             self.section2_type_action.setEnabled(True)
@@ -245,7 +252,6 @@ class Modal_New_Stream(Ui):
         elif index == TypeTrigger.KEY.name:
             self.type_tigger = TypeTrigger.KEY
             self.section2_type_action.setEnabled(False)
-            self.section2_input_trigger.textChanged.disconnect()
             self.section2_input_trigger.setText('Tecla F1')
             self.section2_input_trigger.setEnabled(False)
             self.section2_type_action.setEnabled(True)
