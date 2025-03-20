@@ -1,20 +1,16 @@
 from qt_core import *
 from app.views.ui import Ui
 from app.utils.enums import Layout
-from app.utils.qt_layout import HLayout, VLayout
-
-def teste_da_funcao(texto, action):
-    print(texto)
-    print(action)
+from app.utils.qt_layout import VLayout
 
 class SelectionOs(Ui):
     def __init__(self, fun):
-        super().__init__(alt=200, larg=250, FixedSize=False, layout=Layout.VERTICAL, modal=True)
+        super().__init__(alt=200, larg=250, FixedSize=True, layout=Layout.VERTICAL, modal=True)
 
         if callable(fun):
             self.fun = fun
         else:
-            raise ValueError("Erro: A função passada não é chamável!")
+            raise print("Erro: A função passada não é chamável!")
 
         self.container = VLayout(margin=10, spacing=10)
 
@@ -37,6 +33,7 @@ class SelectionOs(Ui):
         self.container.addWidget(self.select_os)
 
         self.setup(self.container)
+
         self.show()
 
     def selecionar_comando_os(self):
@@ -66,7 +63,8 @@ class SelectionOs(Ui):
         elif texto == 'Deletar':
             self.one_input = QLineEdit(placeholderText='Arquivo/Pasta a deletar...')
         elif texto == 'Criar':
-            self.one_input = QLineEdit(placeholderText='Nome da nova pasta...')
+            self.one_input = QLineEdit(placeholderText='Local de criação ...')
+            self.two_input = QLineEdit(placeholderText='Nome da pasta...')
         elif texto == 'Adicionar Comando':
             self.one_input = QLineEdit(placeholderText='Novo comando...')
 
@@ -87,13 +85,16 @@ class SelectionOs(Ui):
     def eventFilter(self, obj, event):
         if event.type() == QEvent.MouseButtonPress:
             if obj in [self.one_input, self.two_input]:
-                if self.select_os.currentText() == 'Criar':
+                if self.select_os.currentText() == 'Criar' and obj == self.one_input:
                     self.select_folder(obj)
                     return True
                 elif self.select_os.currentText() == 'Adicionar Comando':
                     return True
-                elif obj == self.two_input and self.select_os.currentText() == 'Mover' or self.select_os.currentText() == 'Copiar':
-                    self.select_folder(obj)
+                elif obj == self.two_input:
+                    if self.select_os.currentText() == 'Mover' or self.select_os.currentText() == 'Copiar':
+                        self.select_folder(obj)
+                    elif self.select_os.currentText() == 'Criar':
+                        return True
                     return True
                 self.showSelectionMenu(obj)
                 return True
@@ -125,17 +126,25 @@ class SelectionOs(Ui):
 
     def salvar(self):
         if self.one_input.text():
-            if self.select_os.currentText() not in ['Criar','Adicionar Comando']:
+            if self.select_os.currentText() not in ['Adicionar Comando', 'Deletar']:
                 if self.two_input.text():
                     texto = self.select_os.currentText()
                     action = {texto: [self.one_input.text(), self.two_input.text()]}
                     self.fun(texto, action )
                 else:
-                    pass
+                    msg_box = QMessageBox()
+                    msg_box.setIcon(QMessageBox.Information)
+                    msg_box.setWindowTitle("Informações")
+                    msg_box.setText("Está faltando informações!\nTermine de inserir as informações e insirá!")
+                    msg_box.exec()
             else:
                 texto = self.select_os.currentText()
                 action = {texto: [self.one_input.text()]}
                 self.fun(texto, action )
         else:
-            pass
-window = SelectionOs(teste_da_funcao)
+            msg_box = QMessageBox()
+            msg_box.setIcon(QMessageBox.Information)
+            msg_box.setWindowTitle("Informações")
+            msg_box.setText("Está faltando informações!\nTermine de inserir as informações e insirá!")
+            msg_box.exec()
+

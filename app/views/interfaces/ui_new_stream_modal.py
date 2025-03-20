@@ -7,6 +7,7 @@ from app.utils.qt_table import expanding_header_table
 from app.views.interfaces.selection_print import SelectionPrint
 from app.views.interfaces.selection_click import SelectionClick
 from app.views.interfaces.selection_comand import SelectionCommand
+from app.views.interfaces.selection_os import SelectionOs
 
 class Modal_New_Stream(Ui):
     def __init__(self, home_hide_or_show=None):
@@ -105,7 +106,6 @@ class Modal_New_Stream(Ui):
         self.central_layout.addLayout(self.section_bottom)
 
         self.setup(self.central_layout)
-
     # ====================================================================================
     #                                FUNCTION TO CLASS
     # ====================================================================================
@@ -116,52 +116,63 @@ class Modal_New_Stream(Ui):
             + Se o evento for, precionar o mouse && o objeto for o Input Trigger
                 Irá abrir a janela de print.
         """
-        if event.type() == QEvent.MouseButtonPress and obj == self.section2_input_trigger:
-            print('Foi clicado!')
-            windows_screen = []
-            from app import app
-            def finalityPrint(text):
-                self.show()
-                self.section2_input_trigger.setText(text)
-                self.trigger = text
-                self.section2_type_action.setEnabled(True)
-            self.hide()
-            for screen in app.screens():
-                screen_geometry = screen.geometry()
-                window = SelectionPrint(screen_geometry, fun=finalityPrint)
-                windows_screen.append(window)
-            for window in windows_screen:
-                window.set_windows(windows_screen)
-                window.show()
-            self.section2_input_trigger.removeEventFilter(self)
-            return True
-
-        elif event.type() == QEvent.MouseButtonPress and obj == self.section2_input_action:
-            if self.type_action == TypeAction.CLICK:
+        if event.type() == QEvent.Type.MouseButtonPress:
+            if obj == self.section2_input_trigger:
+                print('Foi clicado!')
+                windows_screen = []
                 from app import app
-                def finalityClick(text, x, y):
-                    self.section2_input_action.setText(text)
-                    self.cordenadas_x = x
-                    self.cordenadas_y = y
-                    self.action = x, y
+                def finalityPrint(text):
                     self.show()
-                    pass
-                windows = []
+                    self.section2_input_trigger.setText(text)
+                    self.trigger = text
+                    self.section2_type_action.setEnabled(True)
                 self.hide()
                 for screen in app.screens():
                     screen_geometry = screen.geometry()
-                    window = SelectionClick(screen_geometry, windows, screen_geometry.x(), screen_geometry.y(), fun=finalityClick)
-                    windows.append(window)
-                self.section2_input_action.removeEventFilter(self)
-                self.section2_input_action.setEnabled(False)
+                    window = SelectionPrint(screen_geometry, fun=finalityPrint)
+                    windows_screen.append(window)
+                for window in windows_screen:
+                    window.set_windows(windows_screen)
+                    window.show()
+                self.section2_input_trigger.removeEventFilter(self)
+                return True
 
-            elif self.type_action == TypeAction.COMAND:
-                def finalityCommand(text, input_action):
-                    self.section2_input_action.setText(text)
-                    self.action = input_action
-                SelectionCommand(finalityCommand)
-            return True
+            elif obj == self.section2_input_action:
+                if self.type_action == TypeAction.CLICK:
+                    from app import app
+                    def finalityClick(text, x, y):
+                        self.section2_input_action.setText(text)
+                        self.cordenadas_x = x
+                        self.cordenadas_y = y
+                        self.action = x, y
+                        self.show()
+                        pass
+                    windows = []
+                    self.hide()
+                    for screen in app.screens():
+                        screen_geometry = screen.geometry()
+                        window = SelectionClick(screen_geometry, windows, screen_geometry.x(), screen_geometry.y(), fun=finalityClick)
+                        windows.append(window)
+                    self.section2_input_action.removeEventFilter(self)
+                    self.section2_input_action.setEnabled(False)
 
+                elif self.type_action == TypeAction.COMAND:
+                    def finalityCommand(text, input_action):
+                        self.section2_input_action.setText(text)
+                        self.action = input_action
+                    SelectionCommand(finalityCommand)
+
+                elif self.type_action == TypeAction.OS:
+                    def finalityOs(text, input_action):
+                        self.section2_input_action.setText(text)
+                        self.action = input_action
+                        self.selectionOs.deleteLater()
+                    self.selectionOs = SelectionOs(finalityOs)
+                    self.selectionOs.show()
+                return True
+
+        elif event.type() == QEvent.Type.KeyPress:
+            print("deactiovatd")
         return super().eventFilter(obj, event)
 
     def validade_input(self, text):
@@ -220,6 +231,7 @@ class Modal_New_Stream(Ui):
         '''
         self.section2_input_action.setEnabled(False)
         self.section2_input_trigger.setEnabled(False)
+        self.section2_input_action.setReadOnly(True)
         index = self.section2_type_trigger.itemData(index)
 
         self.trigger = None
@@ -232,7 +244,6 @@ class Modal_New_Stream(Ui):
                 self.section2_input_trigger.textChanged.disconnect()
             except TypeError:
                 pass
-
 
         if index == TypeTrigger.IMAGE.name:
             self.type_tigger = TypeTrigger.IMAGE
@@ -263,40 +274,36 @@ class Modal_New_Stream(Ui):
             self.section2_input_trigger.textChanged.connect(lambda text = self.section2_input_trigger.text(): self.validade_input(text=text))
 
     def select_type_action(self, index):
-
         '''
             O Objetivo dessa função é identificar qual tipo de ação é escolhido e fazer uma ação com base nisso.
 
             + CLICK: Se for Clique tem que abrir a janela para clicar quando for clicado no input.
             + COMMAND: Deve abrir uma janela com a seleção dos comandos e talvez até adicionar um comando.
         '''
-        self.section2_input_action.removeEventFilter(self)
-
+        self.section2_input_action.installEventFilter(self)
         index = self.section2_type_action.itemData(index)
-
         self.section2_input_action.setText('')
+        self.section2_input_action.setReadOnly(True)
 
         if index == TypeAction.CLICK.name:
             self.type_action = TypeAction.CLICK
             self.section2_input_action.setEnabled(True)
 
-            self.section2_input_action.installEventFilter(self)
-
         elif index == TypeAction.COMAND.name:
             self.type_action = TypeAction.COMAND
             self.section2_input_action.setEnabled(True)
-            self.section2_input_action.installEventFilter(self)
-            pass
+
         elif index == TypeAction.LIST.name:
             self.type_action = TypeAction.LIST
-            pass
+
         elif index == TypeAction.OS.name:
             self.type_action = TypeAction.OS
-            print('os')
+            self.section2_input_action.setEnabled(True)
 
         elif index == TypeAction.WRITE.name:
             self.type_action = TypeAction.WRITE
-            pass
+            self.section2_input_action.setReadOnly(False)
+            self.section2_input_action.setEnabled(True)
 
     def closeEvent(self, event):
         self.home.show()
