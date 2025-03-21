@@ -32,8 +32,18 @@ class Modal_New_Stream(Ui):
         self.section = HLayout()
         self.section1 = VLayout(margin=10)
 
-        self.section1_table = QTableWidget(3, 4)
+        self.section1_table = QTableWidget(0, 4)
         self.section1_table.setHorizontalHeaderLabels(['Tipo Ação', 'Tipo Gatilho', 'Gatilho', 'Ação'])
+        self.section1_table.setSelectionMode(QAbstractItemView.NoSelection)
+        self.section1_table.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self.section1_table.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.section1_table.setSelectionMode(QAbstractItemView.SingleSelection)
+        self.section1_table.setStyleSheet("""
+            QTableWidget::item:selected {
+                background-color: #0c2cab;  /* Cor de fundo forte para a linha */
+                color: white;               /* Cor do texto quando selecionado */
+            }
+        """)
 
         expanding_header_table(self.section1_table, 0, expanding=False)
         expanding_header_table(self.section1_table, 1, expanding=False)
@@ -77,7 +87,7 @@ class Modal_New_Stream(Ui):
         self.section_bottom_buttom_finish_stream = QPushButton('Finalizar Fluxo!')
         self.section_bottom_buttom_test_stream = QPushButton('Testar Fluxo!')
         self.section_bottom_buttom_add_action = QPushButton('Adicionar Ação!')
-        self.section_bottom_buttom_add_action.clicked.connect(lambda checked: print(f"Tipo Gatilho: {self.type_tigger}\nGatilho: {self.trigger}\nTipo Ação: {self.type_action}\nAção: {self.action}\n"))
+        self.section_bottom_buttom_add_action.clicked.connect(self.addStreamToTable)
 
         # ADICIONANDO AO LAYOUT
         self.section1.addWidget(self.section1_table)
@@ -118,7 +128,6 @@ class Modal_New_Stream(Ui):
         """
         if event.type() == QEvent.Type.MouseButtonPress:
             if obj == self.section2_input_trigger:
-                print('Foi clicado!')
                 windows_screen = []
                 from app import app
                 def finalityPrint(text):
@@ -173,7 +182,6 @@ class Modal_New_Stream(Ui):
 
         elif event.type() == QEvent.Type.KeyRelease:
             self.action = self.section2_input_action.text()
-            print(self.section2_input_action.text())
 
 
         return super().eventFilter(obj, event)
@@ -208,7 +216,6 @@ class Modal_New_Stream(Ui):
         except:
             self.section2_input_trigger.setText('00.00')
 
-
     def select_type_trigger(self, index):
         '''
             O objetivo dessa função é identificar qual tipo de gatinho foi selecionado
@@ -232,9 +239,7 @@ class Modal_New_Stream(Ui):
                 Deixar com que escreva no input(apenas inteiro, e float até 2 numeros depois da virgula).
                 Colocar ação que assim que escrever e for correto o tipo, ativar a seleção do Tipo Ação.
         '''
-        self.section2_input_action.setEnabled(False)
         self.section2_input_trigger.setEnabled(False)
-        self.section2_input_action.setReadOnly(True)
         index = self.section2_type_trigger.itemData(index)
 
         self.trigger = None
@@ -258,6 +263,7 @@ class Modal_New_Stream(Ui):
 
         elif index == TypeTrigger.MOUSE.name:
             self.type_tigger = TypeTrigger.MOUSE
+            self.trigger = 'Clique do mouse'
             self.section2_type_action.setEnabled(False)
             self.section2_input_trigger.setText('Clique do mouse')
             self.section2_input_trigger.setEnabled(False)
@@ -265,6 +271,7 @@ class Modal_New_Stream(Ui):
 
         elif index == TypeTrigger.KEY.name:
             self.type_tigger = TypeTrigger.KEY
+            self.trigger = 'Tecla F1'
             self.section2_type_action.setEnabled(False)
             self.section2_input_trigger.setText('Tecla F1')
             self.section2_input_trigger.setEnabled(False)
@@ -307,6 +314,34 @@ class Modal_New_Stream(Ui):
             self.type_action = TypeAction.WRITE
             self.section2_input_action.setReadOnly(False)
             self.section2_input_action.setEnabled(True)
+
+    def addStreamToTable(self):
+
+        type_action = self.type_action.name if self.type_action else None
+        type_trigger = self.type_tigger.name if self.type_tigger else None
+        trigger = self.trigger if self.trigger not in ['00.00', '0.00', '.00'] else None
+        action = self.section2_input_action.text() if self.section2_input_action.text() != '' else None
+
+        if any(value is None or value == "" for value in [type_action, type_trigger, action, trigger]) or trigger == '00.00':
+            QMessageBox.information(self, 'Informação', 'Preencha todas as informações antes de inserir a ação!')
+        else:
+            rows = self.section1_table.rowCount()
+            self.section1_table.insertRow(rows)
+            self.section1_table.setItem(rows, 0, QTableWidgetItem(str(type_action)))
+            self.section1_table.setItem(rows, 1, QTableWidgetItem(str(type_trigger)))
+            self.section1_table.setItem(rows, 2, QTableWidgetItem(str(trigger)))
+            self.section1_table.setItem(rows, 3, QTableWidgetItem(str(action)))
+
+            self.section2_type_trigger.setCurrentIndex(2)
+            self.section2_type_action.setCurrentIndex(-1)
+            self.section2_input_trigger.setText('01.00')
+            self.section2_input_action.setText('')
+            self.section2_input_action.setEnabled(True)
+
+            self.type_action = None
+            self.type_tigger = TypeTrigger.TIME
+            self.action = None
+            self.trigger = '01.00'
 
     def closeEvent(self, event):
         self.home.show()
