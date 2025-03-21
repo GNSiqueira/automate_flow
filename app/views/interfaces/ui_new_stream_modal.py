@@ -15,6 +15,8 @@ class Modal_New_Stream(Ui):
 
         self.home = home_hide_or_show
 
+        self.streams = []
+
         self.type_action = None
         self.type_tigger = TypeTrigger.TIME
         self.action = None
@@ -337,6 +339,17 @@ class Modal_New_Stream(Ui):
             self.section2_input_trigger.setText('01.00')
             self.section2_input_action.setText('')
             self.section2_input_action.setEnabled(True)
+
+            stream = {
+                'type_trigger': self.type_tigger.name,
+                'trigger' : trigger,
+                'type_action': self.type_action.name, 
+                'action': self.action  
+            }
+
+            self.streams.append(stream)
+
+            print(self.streams)
 
             self.type_action = None
             self.type_tigger = TypeTrigger.TIME
