@@ -171,8 +171,11 @@ class Modal_New_Stream(Ui):
                     self.selectionOs.show()
                 return True
 
-        elif event.type() == QEvent.Type.KeyPress:
-            print("deactiovatd")
+        elif event.type() == QEvent.Type.KeyRelease:
+            self.action = self.section2_input_action.text()
+            print(self.section2_input_action.text())
+
+
         return super().eventFilter(obj, event)
 
     def validade_input(self, text):
