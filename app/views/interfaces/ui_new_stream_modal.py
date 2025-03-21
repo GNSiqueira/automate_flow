@@ -86,6 +86,7 @@ class Modal_New_Stream(Ui):
 
         self.section_bottom = HLayout(spacing=5)
         self.section_bottom_buttom_delete_action = QPushButton('Deletar Ação!')
+        self.section_bottom_buttom_delete_action.clicked.connect(self.deleteStream)
         self.section_bottom_buttom_finish_stream = QPushButton('Finalizar Fluxo!')
         self.section_bottom_buttom_test_stream = QPushButton('Testar Fluxo!')
         self.section_bottom_buttom_add_action = QPushButton('Adicionar Ação!')
@@ -343,8 +344,8 @@ class Modal_New_Stream(Ui):
             stream = {
                 'type_trigger': self.type_tigger.name,
                 'trigger' : trigger,
-                'type_action': self.type_action.name, 
-                'action': self.action  
+                'type_action': self.type_action.name,
+                'action': self.action
             }
 
             self.streams.append(stream)
@@ -355,6 +356,15 @@ class Modal_New_Stream(Ui):
             self.type_tigger = TypeTrigger.TIME
             self.action = None
             self.trigger = '01.00'
+
+    def deleteStream(self):
+        selected = (self.section1_table.selectedItems())
+
+        if selected:
+            selected = selected[0].row()
+            self.section1_table.removeRow(selected)
+            self.streams.pop(selected)
+            print(self.streams)
 
     def closeEvent(self, event):
         self.home.show()

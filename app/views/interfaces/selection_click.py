@@ -29,12 +29,12 @@ class SelectionClick(QMainWindow):
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
             position = event.position()
-            x = int(position.x())
-            y = int(position.y())
+            x = int(position.x() + self.px)
+            y = int(position.y() + self.py)
 
             for window in self.all_windows:
                 window.close()
-            texto = (f"x={x + self.px}, y={y + self.py}")
+            texto = (f"x={x}, y={y}")
             self.fun(texto, x, y)
 
 
