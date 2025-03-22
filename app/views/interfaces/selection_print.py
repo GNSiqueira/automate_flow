@@ -1,7 +1,7 @@
 from qt_core import *
 from PIL import ImageGrab
 from time import sleep
-from app.utils.util import repositories, os
+from app.utils.configs import os, Configs
 
 class SelectionPrint(QMainWindow):
     def __init__(self, screen_geometry, fun):
@@ -81,15 +81,10 @@ class SelectionPrint(QMainWindow):
             bbox = (x1, y1, x2, y2)
             screenshot = ImageGrab.grab(bbox)
 
-            repository, repository_image = repositories()
-
-            count = 0
-            while os.path.exists(f"{repository_image}/screenshot{count}.png"):
-                count += 1
+            repository_image, count = Configs.screenshot()
 
             screenshot.save(f"{repository_image}/screenshot{count}.png")
             print(f"Captura de tela salva como 'screenshot{count}.png'")
 
             self.close_windows()
             self.fun(f'screenshot{count}.png')
-            

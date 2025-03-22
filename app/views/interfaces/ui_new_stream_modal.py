@@ -364,7 +364,6 @@ class Modal_New_Stream(Ui):
             selected = selected[0].row()
             self.section1_table.removeRow(selected)
             self.streams.pop(selected)
-            print(self.streams)
 
     def closeEvent(self, event):
         self.home.show()
