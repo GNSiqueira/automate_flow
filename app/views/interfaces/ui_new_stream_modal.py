@@ -2,6 +2,7 @@ from qt_core import *
 from app.views.ui import Ui
 from app.utils.util import *
 from app.utils.enums import *
+from app.utils.configs import Configs, os
 from app.utils.qt_layout import *
 from app.utils.qt_table import expanding_header_table
 from app.views.interfaces.selection_print import SelectionPrint
@@ -15,7 +16,7 @@ class Modal_New_Stream(Ui):
 
         self.home = home_hide_or_show
 
-        self.streams = []
+        self.streams = ['Que dia pode ser!']
 
         self.type_action = None
         self.type_tigger = TypeTrigger.TIME
@@ -88,6 +89,7 @@ class Modal_New_Stream(Ui):
         self.section_bottom_buttom_delete_action = QPushButton('Deletar Ação!')
         self.section_bottom_buttom_delete_action.clicked.connect(self.deleteStream)
         self.section_bottom_buttom_finish_stream = QPushButton('Finalizar Fluxo!')
+        self.section_bottom_buttom_finish_stream.clicked.connect(self.finatityStream)
         self.section_bottom_buttom_test_stream = QPushButton('Testar Fluxo!')
         self.section_bottom_buttom_add_action = QPushButton('Adicionar Ação!')
         self.section_bottom_buttom_add_action.clicked.connect(self.addStreamToTable)
@@ -342,9 +344,9 @@ class Modal_New_Stream(Ui):
             self.section2_input_action.setEnabled(True)
 
             stream = {
-                'type_trigger': self.type_tigger.name,
+                'type_trigger': type_trigger,
                 'trigger' : trigger,
-                'type_action': self.type_action.name,
+                'type_action': type_action,
                 'action': self.action
             }
 
@@ -364,6 +366,11 @@ class Modal_New_Stream(Ui):
             selected = selected[0].row()
             self.section1_table.removeRow(selected)
             self.streams.pop(selected)
+
+    def finatityStream(self):
+        arquivo = Configs.arquivo_leitura()
+        arquivo.append(self.streams)
+        Configs.arquivo_escrita(arquivo)
 
     def closeEvent(self, event):
         self.home.show()

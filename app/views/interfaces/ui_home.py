@@ -1,5 +1,6 @@
 from typing import Literal
 from app.utils.qt_layout import *
+from app.utils.configs import Configs
 from qt_core import *
 from app.views.ui import Ui
 from app.views.interfaces.ui_new_stream_modal import Modal_New_Stream
@@ -12,11 +13,16 @@ class Home(Ui):
 
         self.section1 = VLayout(margin=20, spacing=10)
 
-        self.section1_table = QTableWidget(2, 2)
-        self.section1_table.setHorizontalHeaderLabels(['Selecionar', 'Fluxo'])
+        self.section1_table = QTableWidget(0, 1)
+        self.section1_table.setHorizontalHeaderLabels(['Fluxo'])
 
-        expanding_header_table(self.section1_table, 1, expanding=True)
-        expanding_header_table(self.section1_table, 0, expanding=False)
+        arquivos = Configs.arquivo_leitura()
+
+        print(arquivos[0][0])
+
+        # self.section1_table.insertRow(c)
+        # self.section1_table.setItem(c, 0, QTableWidgetItem(arquivos[c][0]))
+        expanding_header_table(self.section1_table, 0, expanding=True)
 
         self.section1_top_table = HLayout(spacing=10)
 

@@ -1,4 +1,5 @@
 import os
+import json
 
 class Configs:
     @staticmethod
@@ -17,7 +18,7 @@ class Configs:
 
             return repository
         except Exception as e:
-            print('Erro:', e)
+            print('Erro ao criar repositório:', e)
             return None
 
     @staticmethod
@@ -46,3 +47,24 @@ class Configs:
             count += 1
 
         return repository_image, count
+
+    @staticmethod
+    def arquivo_escrita(arquivo):
+        Configs.__validar_arquivo()
+        with open(os.path.join(Configs.__repositories(), 'streams.json'), 'w') as f:
+            json.dump(arquivo, f, indent=2)
+
+    @staticmethod
+    def arquivo_leitura() -> list:
+        Configs.__validar_arquivo()
+        with open(os.path.join(Configs.__repositories(), 'streams.json'), 'r') as f:
+            return json.load(f)
+
+    @staticmethod
+    def __validar_arquivo():
+        path = os.path.join(Configs.__repositories(), 'streams.json')
+
+        if not os.path.exists(path):
+            with open(path, 'w') as f:
+                json.dump((), f, indent=2)
+            print('Arquivo streams.json criado com sucesso.')
