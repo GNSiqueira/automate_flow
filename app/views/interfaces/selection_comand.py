@@ -19,42 +19,42 @@ class SelectionCommand(Ui):
 
         comands = {
             # Manipulação de texto
-            'Copiar': ['ctrl', 'c'],
-            'Cortar': ['ctrl', 'x'],
-            'Colar': ['ctrl', 'v'],
-            'Colar especial': ['shift', 'insert'],
-            'Desfazer': ['ctrl', 'z'],
-            'Refazer': ['ctrl', 'y'],
-            'Selecionar tudo': ['ctrl', 'a'],
+            'Copiar': ['Copiar','ctrl', 'c'],
+            'Cortar': ['Cortar','ctrl', 'x'],
+            'Colar': ['Colar','ctrl', 'v'],
+            'Colar especial': ['Colar','shift', 'insert'],
+            'Desfazer': ['Desfazer','ctrl', 'z'],
+            'Refazer': ['Refazer','ctrl', 'y'],
+            'Selecionar tudo': ['Selecionar tudo','ctrl', 'a'],
 
             # Navegação (janelas e abas)
-            'Alterar janela': ['alt', 'tab'],
-            'Explorador de arquivos': ['win', 'e'],
-            'Fechar programa': ['alt', 'f4'],
-            'Abrir o Explorador de Tarefas (Visão de Tarefas)': ['win', 'tab'],
-            'Minimizar todas as janelas': ['win', 'd'],
-            'Bloquear tela': ['win', 'l'],
-            'Reabrir aba fechada (Navegador)': ['ctrl', 'shift', 't'],
-            'Fechar aba (Navegador)': ['ctrl', 'w'],
-            'Guia anônima (Navegador)': ['ctrl', 'shift', 'n'],
-            'Nova aba (Navegador)': ['ctrl', 'c'],  # Talvez revisar esse atalho!
+            'Alterar janela': ['Alterar janela','alt', 'tab'],
+            'Explorador de arquivos': ['Explorador de arquivos','win', 'e'],
+            'Fechar programa': ['Fechar programa','alt', 'f4'],
+            'Abrir o Explorador de Tarefas (Visão de Tarefas)': ['Abrir o Explorador de Tarefas (Visão de Tarefas)','win', 'tab'],
+            'Minimizar todas as janelas': ['Minimizar todas as janelas','win', 'd'],
+            'Bloquear tela': ['Bloquear tela','win', 'l'],
+            'Reabrir aba fechada (Navegador)': ['Reabrir aba fechada (Navegador)','ctrl', 'shift', 't'],
+            'Fechar aba (Navegador)': ['Fechar aba (Navegador)','ctrl', 'w'],
+            'Guia anônima (Navegador)': ['Guia anônima (Navegador)','ctrl', 'shift', 'n'],
+            'Nova aba (Navegador)': ['Nova aba (Navegador)','ctrl', 'c'],  # Talvez revisar esse atalho!
 
             # Comandos específicos do Windows
-            'Abrir configurações do sistema': ['win', 'i'],
-            'Abrir Gerenciador de Tarefas': ['ctrl', 'shift', 'esc'],
-            'Abrir histórico de área de transferência': ['win', 'v'],
-            'Abrir a linha de comando (Executar)': ['win', 'r'],
-            'Abrir Barra de Emojis': ['win', '.'],  # ou ['win', ';']
+            'Abrir configurações do sistema': ['Abrir configurações do sistema','win', 'i'],
+            'Abrir Gerenciador de Tarefas': ['Abrir Gerenciador de Tarefas','ctrl', 'shift', 'esc'],
+            'Abrir histórico de área de transferência': ['Abrir histórico de área de transferência','win', 'v'],
+            'Abrir a linha de comando (Executar)': ['Abrir a linha de comando (Executar)','win', 'r'],
+            'Abrir Barra de Emojis': ['Abrir Barra de Emojis','win', '.'],  # ou ['win', ';']
 
             # Outros comandos úteis
-            'Tab para cima': ['shift', 'tab'],
-            'Tab': ['tab'],
-            'Seta para baixo': ['down'],
-            'Seta para cima': ['up'],
-            'Seta para a esquerda': ['left'],
-            'Seta para a direita': ['right'],
-            'Espaço': ['space'],
-            'Windows': ['win']
+            'Tab para cima': ['Tab para cima','shift', 'tab'],
+            'Tab': ['Tab','tab'],
+            'Seta para baixo': ['Seta para baixo','down'],
+            'Seta para cima': ['Seta para cima','up'],
+            'Seta para a esquerda': ['Seta para a esquerda','left'],
+            'Seta para a direita': ['Seta para a direita','right'],
+            'Espaço': ['Espaço','space'],
+            'Windows': ['Windows','win']
         }
 
         scroll_area = QScrollArea(self)
@@ -102,17 +102,17 @@ class CreateCommand(Ui):
         self.limpar = QPushButton('Limpar!')
         self.limpar.clicked.connect(lambda checked: self.limpar_command())
 
-        self.selector = []
+        self.selector = ['']
 
         commands = {
             'Espaço': ' ',
             'Exclamação': '!',
-            'Aspas': '"',
+            'Aspas': '\"',
             'Jogo da velha': '#',
             'Cifrão': '$',
             'Porcentagem': '%',
             'E comercial': '&',
-            'Apóstrofo': "'",
+            'Apóstrofo': '\'',
             'Parêntese esq.': '(',
             'Parêntese dir.': ')',
             'Asterisco': '*',
@@ -282,7 +282,6 @@ class CreateCommand(Ui):
         content_widget = QWidget()
         content_widget.setMaximumWidth(300)
         content_layout = VLayout(content_widget, margin=10)
-        self.select = None
         for command_desk, command_ata in commands.items():
             button = QPushButton(command_desk)
             button.clicked.connect(lambda checked, key=command_ata : self.adicionar_keys(key))
@@ -306,17 +305,22 @@ class CreateCommand(Ui):
         self.show()
 
     def adicionar_keys(self, key):
-        self.selector.append(key)
-        texto = " + ".join([f"'{str(seletor)}'" for seletor in self.selector])
+        print()
+        print(self.selector)
 
+        self.selector.append(key)
+
+        texto = ' + '.join([f'{str(seletor)}' for seletor in self.selector[1:]])
+        print(self.selector)
+        print(key)
+        print(texto)
+        self.selector[0] = texto
         self.label.setText(texto)
 
     def limpar_command(self):
         self.label.setText('Aqui será mostrado os comandos')
-        self.selector = []
+        self.selector = ['']
 
     def salvar_command(self):
-        texto = " + ".join([f"'{str(seletor)}'" for seletor in self.selector])
-
-        self.fun(texto, self.selector)
+        self.fun(self.selector[0], self.selector)
         self.close()

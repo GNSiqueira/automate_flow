@@ -2,29 +2,40 @@ from qt_core import *
 from app.views.ui import Ui
 from app.utils.util import *
 from app.utils.enums import *
-from app.utils.configs import Configs, os
+from app.utils.configs import Configs
 from app.utils.qt_layout import *
 from app.utils.qt_table import expanding_header_table
 from app.views.interfaces.selection_print import SelectionPrint
 from app.views.interfaces.selection_click import SelectionClick
 from app.views.interfaces.selection_comand import SelectionCommand
 from app.views.interfaces.selection_os import SelectionOs
+from app.views.interfaces.set_name_stream import SetNameStream
 
 class Modal_New_Stream(Ui):
-    def __init__(self, home_hide_or_show=None):
+
+    atualizar_info = Signal()
+
+    def __init__(self, home_hide_or_show=None, streams = None):
         super().__init__(alt=800, larg=430, FixedSize=True, layout=Layout.VERTICAL, modal=True)
 
         self.home = home_hide_or_show
 
-        self.streams = ['Que dia pode ser!']
+        if streams:
+            self.streams_total = Configs.arquivo_leitura()
+            self.streams = self.streams_total[streams- 1]
+        else:
+            self.streams = ['Not Defined!']
+
+
+
 
         self.type_action = None
         self.type_tigger = TypeTrigger.TIME
         self.action = None
         self.trigger = '01.00'
 
-        self.title_stream = "Not Defined"
-        self.setWindowTitle(f"Automate Flow - {self.title_stream}")
+
+        self.setWindowTitle(f"Automate Flow - {self.streams[0]}")
         self.setWindowModality(Qt.ApplicationModal)
         center_x, center_y = screen_center(800, 430)
         self.setGeometry(center_x, center_y, 800, 430)
@@ -37,16 +48,33 @@ class Modal_New_Stream(Ui):
 
         self.section1_table = QTableWidget(0, 4)
         self.section1_table.setHorizontalHeaderLabels(['Tipo Ação', 'Tipo Gatilho', 'Gatilho', 'Ação'])
+
+        # Define que a tabela não permite seleção de células ou linhas
         self.section1_table.setSelectionMode(QAbstractItemView.NoSelection)
+        # Impede a edição direta dos itens da tabela
         self.section1_table.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        # Faz com que, ao selecionar um item, a linha inteira seja selecionada
         self.section1_table.setSelectionBehavior(QAbstractItemView.SelectRows)
+        # Define que apenas uma linha pode ser selecionada por vez (substitui NoSelection anterior)
         self.section1_table.setSelectionMode(QAbstractItemView.SingleSelection)
+        # Define o estilo da seleção (cor de fundo e cor do texto ao selecionar uma linha)
         self.section1_table.setStyleSheet("""
             QTableWidget::item:selected {
-                background-color: #0c2cab;  /* Cor de fundo forte para a linha */
-                color: white;               /* Cor do texto quando selecionado */
+                background-color: #0c2cab;  /* Cor de fundo azul forte para a linha selecionada */
+                color: white;               /* Cor do texto ao selecionar */
+
             }
         """)
+
+        if streams:
+            for c, a in enumerate(self.streams[1:]):
+                self.section1_table.insertRow(c)
+                self.section1_table.setItem(c, 0, QTableWidgetItem(str(a['type_action'])))
+                self.section1_table.setItem(c, 1, QTableWidgetItem(str(a['type_trigger'])))
+                self.section1_table.setItem(c, 2, QTableWidgetItem(str(a['trigger'])))
+                self.section1_table.setItem(c, 3, QTableWidgetItem(str(a['action'][0])))
+
+        self.section1_table.cellDoubleClicked.connect(self.selectTableEdit)
 
         expanding_header_table(self.section1_table, 0, expanding=False)
         expanding_header_table(self.section1_table, 1, expanding=False)
@@ -158,7 +186,7 @@ class Modal_New_Stream(Ui):
                         self.section2_input_action.setText(text)
                         self.cordenadas_x = x
                         self.cordenadas_y = y
-                        self.action = x, y
+                        self.action = text, x, y
                         self.show()
                         pass
                     windows = []
@@ -186,7 +214,7 @@ class Modal_New_Stream(Ui):
                 return True
 
         elif event.type() == QEvent.Type.KeyRelease:
-            self.action = self.section2_input_action.text()
+            self.action = [self.section2_input_action.text()]
 
 
         return super().eventFilter(obj, event)
@@ -221,7 +249,7 @@ class Modal_New_Stream(Ui):
         except:
             self.section2_input_trigger.setText('00.00')
 
-    def select_type_trigger(self, index):
+    def select_type_trigger(self, index, edit = None):
         '''
             O objetivo dessa função é identificar qual tipo de gatinho foi selecionado
 
@@ -245,7 +273,10 @@ class Modal_New_Stream(Ui):
                 Colocar ação que assim que escrever e for correto o tipo, ativar a seleção do Tipo Ação.
         '''
         self.section2_input_trigger.setEnabled(False)
-        index = self.section2_type_trigger.itemData(index)
+        if edit:
+            pass
+        else: 
+            index = self.section2_type_trigger.itemData(index)
 
         self.trigger = None
 
@@ -286,6 +317,7 @@ class Modal_New_Stream(Ui):
             self.type_tigger = TypeTrigger.TIME
             self.section2_input_trigger.setText('00.00')
             self.section2_input_trigger.setEnabled(True)
+            self.section2_type_action.setEnabled(False)
             self.section2_input_trigger.textChanged.connect(lambda text = self.section2_input_trigger.text(): self.validade_input(text=text))
 
     def select_type_action(self, index):
@@ -352,8 +384,6 @@ class Modal_New_Stream(Ui):
 
             self.streams.append(stream)
 
-            print(self.streams)
-
             self.type_action = None
             self.type_tigger = TypeTrigger.TIME
             self.action = None
@@ -368,10 +398,26 @@ class Modal_New_Stream(Ui):
             self.streams.pop(selected)
 
     def finatityStream(self):
-        arquivo = Configs.arquivo_leitura()
-        arquivo.append(self.streams)
-        Configs.arquivo_escrita(arquivo)
+        if len(self.streams) < 2:
+            QMessageBox.information(None, "Informação", "Insirá no minimo uma ação nesse fluxo!")
+            return False
+
+        def set_name_stream(name):
+            self.streams[0] = name
+            arquivo = Configs.arquivo_leitura()
+            arquivo.append(self.streams)
+            Configs.arquivo_escrita(arquivo)
+            self.close()
+
+        self.set_name = SetNameStream()
+        self.set_name.atualizar_info.connect(set_name_stream)
+        self.set_name.show()
+
+    def selectTableEdit(self, row):
+        self.linha = row
+        
 
     def closeEvent(self, event):
+        self.atualizar_info.emit()
         self.home.show()
         return super().closeEvent(event)

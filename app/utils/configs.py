@@ -53,12 +53,14 @@ class Configs:
         Configs.__validar_arquivo()
         with open(os.path.join(Configs.__repositories(), 'streams.json'), 'w') as f:
             json.dump(arquivo, f, indent=2)
+        return True
 
     @staticmethod
     def arquivo_leitura() -> list:
         Configs.__validar_arquivo()
         with open(os.path.join(Configs.__repositories(), 'streams.json'), 'r') as f:
-            return json.load(f)
+            config = json.load(f)
+        return config
 
     @staticmethod
     def __validar_arquivo():

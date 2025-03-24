@@ -1,15 +1,12 @@
-import os, json
+teste = {
+      "type_trigger": "IMAGE",
+      "trigger": "screenshot21.png",
+      "type_action": "OS",
+      "action": [
+        "Copiar",
+        "H:/PESSOAL/VsCode/automate_flow/.editorconfig",
+        "H:/PESSOAL/VsCode/automate_flow/app"
+      ]
+    }
 
-arquivo = ['teste', 'teste2', 'teste3']
-path = './config.json'
-
-
-def arquivo_w(path, arquivo):
-    with open(path, 'w') as f:
-        json.dump(arquivo, f, indent=2)
-
-def arquivo_r(path):
-    with open(path, 'r') as f:
-        config = json.load(f)
-    return config
-
+print(teste)

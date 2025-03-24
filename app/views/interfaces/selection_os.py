@@ -129,7 +129,7 @@ class SelectionOs(Ui):
             if self.select_os.currentText() not in ['Adicionar Comando', 'Deletar']:
                 if self.two_input.text():
                     texto = self.select_os.currentText()
-                    action = {texto: [self.one_input.text(), self.two_input.text()]}
+                    action = [texto, self.one_input.text(), self.two_input.text()]
                     self.fun(texto, action )
                 else:
                     msg_box = QMessageBox()
@@ -139,7 +139,7 @@ class SelectionOs(Ui):
                     msg_box.exec()
             else:
                 texto = self.select_os.currentText()
-                action = {texto: [self.one_input.text()]}
+                action = [texto, self.one_input.text()]
                 self.fun(texto, action )
         else:
             msg_box = QMessageBox()

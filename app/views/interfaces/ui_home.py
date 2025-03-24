@@ -1,4 +1,3 @@
-from typing import Literal
 from app.utils.qt_layout import *
 from app.utils.configs import Configs
 from qt_core import *
@@ -15,16 +14,22 @@ class Home(Ui):
 
         self.section1_table = QTableWidget(0, 1)
         self.section1_table.setHorizontalHeaderLabels(['Fluxo'])
+        self.section1_table.setSelectionMode(QAbstractItemView.NoSelection)
+        self.section1_table.setSelectionMode(QAbstractItemView.SingleSelection)
+        self.section1_table.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self.section1_table.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.section1_table.setStyleSheet("""
+            QTableWidget::item:selected {
+                background-color: #0c2cab;  /* Cor de fundo azul forte para a linha selecionada */
+                color: white;               /* Cor do texto ao selecionar */
+            }
+        """)
 
-        arquivos = Configs.arquivo_leitura()
-
-        print(arquivos[0][0])
-
-        # self.section1_table.insertRow(c)
-        # self.section1_table.setItem(c, 0, QTableWidgetItem(arquivos[c][0]))
         expanding_header_table(self.section1_table, 0, expanding=True)
 
         self.section1_top_table = HLayout(spacing=10)
+
+        self.itens_to_table()
 
         self.section1_top_table_button_new = QPushButton("Novo Fluxo +")
         self.section1_top_table_button_new.clicked.connect(self.open_new_stream_modal)
@@ -41,6 +46,7 @@ class Home(Ui):
 
         self.section2_button_edit_stream = QPushButton("Editar fluxo ")
         self.section2_button_edit_stream.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        self.section2_button_edit_stream.clicked.connect(self.editar)
         self.section2_button_delete_stream = QPushButton("Deletar Fluxo  X")
         self.section2_button_start_stream = QPushButton("Start Fluxo  ▶")
 
@@ -55,16 +61,43 @@ class Home(Ui):
 
     def open_new_stream_modal(self):
         state_modal = self.state_modal(self)
-        state_modal.hide()
+        state_modal.close()
         self.nova_janela = Modal_New_Stream(state_modal)
+        self.nova_janela.atualizar_info.connect(self.itens_to_table)
         self.nova_janela.show()
+
+    def itens_to_table(self):
+        arquivos = Configs.arquivo_leitura()
+
+        self.section1_table.setRowCount(0)
+
+        for num, arquivo in enumerate(arquivos):
+            self.section1_table.insertRow(num)
+            self.section1_table.setItem(num, 0, QTableWidgetItem(str(arquivo[0])))
+
+        del arquivos
+
+        return True
+
+    def editar(self):
+        select = self.section1_table.selectedItems()
+        if select:
+            state_modal = self.state_modal(self)
+            state_modal.close()
+            self.nova_janela = Modal_New_Stream(state_modal, int(select[0].row() + 1))
+            self.nova_janela.show()
+
 
     class state_modal:
         def __init__(self, parent):
             self.parent = parent
 
+        def close(self):
+            self.parent.close()
+
         def hide(self):
             self.parent.hide()
 
         def show(self):
+            self.parent.update()
             self.parent.show()

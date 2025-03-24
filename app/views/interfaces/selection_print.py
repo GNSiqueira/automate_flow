@@ -84,7 +84,6 @@ class SelectionPrint(QMainWindow):
             repository_image, count = Configs.screenshot()
 
             screenshot.save(f"{repository_image}/screenshot{count}.png")
-            print(f"Captura de tela salva como 'screenshot{count}.png'")
 
             self.close_windows()
             self.fun(f'screenshot{count}.png')
