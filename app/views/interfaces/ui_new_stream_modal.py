@@ -114,7 +114,7 @@ class Modal_New_Stream(Ui):
         self.section_bottom_buttom_delete_action = QPushButton('Deletar Ação!')
         self.section_bottom_buttom_delete_action.clicked.connect(self.deleteStream)
         self.section_bottom_buttom_finish_stream = QPushButton('Finalizar Fluxo!')
-        self.section_bottom_buttom_finish_stream.clicked.connect(self.finatityStream)
+        self.section_bottom_buttom_finish_stream.clicked.connect(self.finatityStream if not streams else self.updateStream)
         self.section_bottom_buttom_test_stream = QPushButton('Testar Fluxo!')
         self.section_bottom_buttom_add_action = QPushButton('Adicionar Ação!')
         self.section_bottom_buttom_add_action.clicked.connect(self.addStreamToTable)
@@ -247,7 +247,7 @@ class Modal_New_Stream(Ui):
         except:
             self.section2_input_trigger.setText('00.00')
 
-    def select_type_trigger(self, index, edit = None):
+    def select_type_trigger(self, index):
         '''
             O objetivo dessa função é identificar qual tipo de gatinho foi selecionado
 
@@ -271,10 +271,8 @@ class Modal_New_Stream(Ui):
                 Colocar ação que assim que escrever e for correto o tipo, ativar a seleção do Tipo Ação.
         '''
         self.section2_input_trigger.setEnabled(False)
-        if edit:
-            pass
-        else:
-            index = self.section2_type_trigger.itemData(index)
+
+        index = self.section2_type_trigger.itemData(index)
 
         self.trigger = None
 
@@ -359,6 +357,7 @@ class Modal_New_Stream(Ui):
 
         if any(value is None or value == "" for value in [type_action, type_trigger, action, trigger]) or trigger == '00.00':
             QMessageBox.information(self, 'Informação', 'Preencha todas as informações antes de inserir a ação!')
+            return False
         else:
             rows = self.section1_table.rowCount()
             self.section1_table.insertRow(rows)
@@ -386,6 +385,51 @@ class Modal_New_Stream(Ui):
             self.type_tigger = TypeTrigger.TIME
             self.action = None
             self.trigger = '01.00'
+        return True
+
+    def updateStreamToTable(self):
+        if not self.linha:
+            self.section_bottom_buttom_add_action.setText('Adicionar Ação!')
+            self.section_bottom_buttom_add_action.clicked.disconnect()
+            self.section_bottom_buttom_add_action.clicked.connect(self.addStreamToTable)
+            return False
+        type_action = self.type_action.name if self.type_action else None
+        type_trigger = self.type_tigger.name if self.type_tigger else None
+        trigger = self.trigger if self.trigger not in ['00.00', '0.00', '.00'] else None
+        action = self.section2_input_action.text() if self.section2_input_action.text() != '' else None
+
+        if any(value is None or value == "" for value in [type_action, type_trigger, action, trigger]) or trigger == '00.00':
+            QMessageBox.information(self, 'Informação', 'Preencha todas as informações antes de inserir a ação!')
+            return False
+        else:
+            self.section1_table.setItem(self.linha -  1, 0, QTableWidgetItem(str(type_action)))
+            self.section1_table.setItem(self.linha -  1, 1, QTableWidgetItem(str(type_trigger)))
+            self.section1_table.setItem(self.linha -  1, 2, QTableWidgetItem(str(trigger)))
+            self.section1_table.setItem(self.linha -  1, 3, QTableWidgetItem(str(action)))
+
+            self.section2_type_trigger.setCurrentIndex(2)
+            self.section2_type_action.setCurrentIndex(-1)
+            self.section2_input_trigger.setText('01.00')
+            self.section2_input_action.setText('')
+            self.section2_input_action.setEnabled(True)
+
+            stream = {
+                'type_trigger': type_trigger,
+                'trigger' : trigger,
+                'type_action': type_action,
+                'action': self.action
+            }
+
+            self.streams[self.linha] = stream
+
+            self.type_action = None
+            self.type_tigger = TypeTrigger.TIME
+            self.action = None
+            self.trigger = '01.00'
+
+            self.section_bottom_buttom_add_action.setText('Adicionar Ação!')
+            self.section_bottom_buttom_add_action.clicked.connect(self.addStreamToTable)
+        return True
 
     def deleteStream(self):
         selected = (self.section1_table.selectedItems())
@@ -411,9 +455,20 @@ class Modal_New_Stream(Ui):
         self.set_name.atualizar_info.connect(set_name_stream)
         self.set_name.show()
 
+    def updateStream(self):
+        if len(self.streams) < 2:
+            QMessageBox.information(None, "Informação", "Insirá no minimo uma ação nesse fluxo!")
+            return False
+
+        Configs.arquivo_escrita(self.streams_total)
+        self.close()
+
     def selectTableEdit(self, row):
         self.section_bottom_buttom_add_action.setText('Alterar fluxo!')
-        self.section_bottom_buttom_add_action.clicked.connect()
+        self.section_bottom_buttom_add_action.clicked.disconnect()
+        self.section_bottom_buttom_add_action.clicked.connect(self.updateStreamToTable)
+
+        self.linha = row + 1
 
         # Definindo inputs
         self.type_trigger = self.streams[self.linha]['type_trigger']
