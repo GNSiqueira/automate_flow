@@ -17,7 +17,7 @@ class TypeAction(Enum):
         CLICK = "Click do mouse"
         WRITE = "Escrever"
         COMAND = "Comando de teclado"
-        LIST = "Lista"
+        # LIST = "Lista"
 
 class Alignment(Enum):
         Top = Qt.AlignmentFlag.AlignTop

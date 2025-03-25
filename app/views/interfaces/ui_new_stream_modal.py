@@ -10,6 +10,7 @@ from app.views.interfaces.selection_click import SelectionClick
 from app.views.interfaces.selection_comand import SelectionCommand
 from app.views.interfaces.selection_os import SelectionOs
 from app.views.interfaces.set_name_stream import SetNameStream
+from app.utils.pyautogui_controller import Trigger, Action
 
 class Modal_New_Stream(Ui):
 
@@ -87,7 +88,7 @@ class Modal_New_Stream(Ui):
 
         self.section2_type_action_label = QLabel("Tipo Ação")
         self.section2_type_action = QComboBox(placeholderText='Selecionar...')
-        self.section2_type_action.currentIndexChanged.connect(self.select_type_action)
+        self.section2_type_action.currentIndexChanged.connect(self.selectTypeAction)
         for value in TypeAction:
             self.section2_type_action.addItem(value.value, value.name)
 
@@ -97,7 +98,7 @@ class Modal_New_Stream(Ui):
 
         self.section2_type_trigger_label = QLabel("Tipo de Gatilho")
         self.section2_type_trigger = QComboBox(placeholderText='Selecionar...')
-        self.section2_type_trigger.currentIndexChanged.connect(self.select_type_trigger)
+        self.section2_type_trigger.currentIndexChanged.connect(self.selectTypeTrigger)
         for value in TypeTrigger:
             self.section2_type_trigger.addItem(value.value, value.name)
         self.section2_type_trigger.setCurrentIndex(2)
@@ -106,7 +107,7 @@ class Modal_New_Stream(Ui):
         self.section2_label_trigger = QLabel("Gatilho")
 
         self.section2_input_trigger.setText('01.00')
-        self.section2_input_trigger.textChanged.connect(self.validade_input)
+        self.section2_input_trigger.textChanged.connect(self.validadeInput)
 
         self.section2.setAlignment(Alignment.Top.value)
 
@@ -116,6 +117,7 @@ class Modal_New_Stream(Ui):
         self.section_bottom_buttom_finish_stream = QPushButton('Finalizar Fluxo!')
         self.section_bottom_buttom_finish_stream.clicked.connect(self.finatityStream if not streams else self.updateStream)
         self.section_bottom_buttom_test_stream = QPushButton('Testar Fluxo!')
+        self.section_bottom_buttom_test_stream.clicked.connect(self.testeStream)
         self.section_bottom_buttom_add_action = QPushButton('Adicionar Ação!')
         self.section_bottom_buttom_add_action.clicked.connect(self.addStreamToTable)
 
@@ -216,7 +218,7 @@ class Modal_New_Stream(Ui):
 
         return super().eventFilter(obj, event)
 
-    def validade_input(self):
+    def validadeInput(self):
         try:
             text = self.section2_input_trigger.text()
             numero = float(text)
@@ -247,7 +249,7 @@ class Modal_New_Stream(Ui):
         except:
             self.section2_input_trigger.setText('00.00')
 
-    def select_type_trigger(self, index):
+    def selectTypeTrigger(self, index):
         '''
             O objetivo dessa função é identificar qual tipo de gatinho foi selecionado
 
@@ -314,9 +316,9 @@ class Modal_New_Stream(Ui):
             self.section2_input_trigger.setText('00.00')
             self.section2_input_trigger.setEnabled(True)
             self.section2_type_action.setEnabled(False)
-            self.section2_input_trigger.textChanged.connect(self.validade_input)
+            self.section2_input_trigger.textChanged.connect(self.validadeInput)
 
-    def select_type_action(self, index):
+    def selectTypeAction(self, index):
         '''
             O Objetivo dessa função é identificar qual tipo de ação é escolhido e fazer uma ação com base nisso.
 
@@ -335,9 +337,6 @@ class Modal_New_Stream(Ui):
         elif index == TypeAction.COMAND.name:
             self.type_action = TypeAction.COMAND
             self.section2_input_action.setEnabled(True)
-
-        elif index == TypeAction.LIST.name:
-            self.type_action = TypeAction.LIST
 
         elif index == TypeAction.OS.name:
             self.type_action = TypeAction.OS
@@ -509,3 +508,18 @@ class Modal_New_Stream(Ui):
         self.atualizar_info.emit()
         self.home.show()
         return super().closeEvent(event)
+
+    def testeStream(self):
+        try:
+
+            print(self.streams)
+            self.hide()
+
+            for stream in self.streams[1:]:
+                print(stream)
+                Trigger(stream['type_trigger'], stream['trigger'])
+                Action(stream['type_action'], stream['action'])
+
+            self.show()
+        except:
+            QMessageBox.information(None, 'Informação', 'Erro ao executar fluxo!')
