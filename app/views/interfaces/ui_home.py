@@ -1,11 +1,11 @@
-from app.utils.qt_layout import *
-from app.utils.configs import Configs
 from qt_core import *
 from app.views.ui import Ui
-from app.views.interfaces.ui_new_stream_modal import Modal_New_Stream
-from app.utils.enums import Layout, Alignment
 from app.utils.qt_table import *
+from app.utils.qt_layout import *
+from app.utils.configs import Configs
+from app.utils.enums import Layout, Alignment
 from app.utils.pyautogui_controller import Action, Trigger
+from app.views.interfaces.ui_new_stream_modal import Modal_New_Stream
 
 class Home(Ui):
     def __init__(self):
@@ -35,6 +35,7 @@ class Home(Ui):
         self.section1_top_table_button_new = QPushButton("Novo Fluxo +")
         self.section1_top_table_button_new.clicked.connect(self.openNewStreamModal)
         self.section1_top_table_search_streams = QLineEdit(placeholderText="Procurar fluxo...")
+        self.section1_top_table_search_streams.textChanged.connect(self.filter)
 
         self.section1_top_table.addWidget(self.section1_top_table_button_new)
         self.section1_top_table.addWidget(self.section1_top_table_search_streams)
@@ -61,6 +62,24 @@ class Home(Ui):
         self.setup(self.section2, expanding=1)
 
         self.show()
+
+    def filter(self):
+        texto = self.section1_top_table_search_streams.text().strip().lower()
+        arquivos = Configs.arquivo_leitura()
+
+        self.section1_table.setRowCount(0)
+
+        num = 0
+        for arquivo in arquivos:
+            if texto in str(arquivo[0]).strip().lower():
+                self.section1_table.insertRow(num)
+                self.section1_table.setItem(num, 0, QTableWidgetItem(str(arquivo[0])))
+                num +=1
+
+        del arquivos
+
+        return True
+
 
     def openNewStreamModal(self):
         state_modal = self.state_modal(self)
