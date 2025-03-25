@@ -511,12 +511,9 @@ class Modal_New_Stream(Ui):
 
     def testeStream(self):
         try:
-
-            print(self.streams)
             self.hide()
 
             for stream in self.streams[1:]:
-                print(stream)
                 Trigger(stream['type_trigger'], stream['trigger'])
                 Action(stream['type_action'], stream['action'])
 

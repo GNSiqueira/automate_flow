@@ -5,6 +5,7 @@ from app.views.ui import Ui
 from app.views.interfaces.ui_new_stream_modal import Modal_New_Stream
 from app.utils.enums import Layout, Alignment
 from app.utils.qt_table import *
+from app.utils.pyautogui_controller import Action, Trigger
 
 class Home(Ui):
     def __init__(self):
@@ -29,10 +30,10 @@ class Home(Ui):
 
         self.section1_top_table = HLayout(spacing=10)
 
-        self.itens_to_table()
+        self.itensToTable()
 
         self.section1_top_table_button_new = QPushButton("Novo Fluxo +")
-        self.section1_top_table_button_new.clicked.connect(self.open_new_stream_modal)
+        self.section1_top_table_button_new.clicked.connect(self.openNewStreamModal)
         self.section1_top_table_search_streams = QLineEdit(placeholderText="Procurar fluxo...")
 
         self.section1_top_table.addWidget(self.section1_top_table_button_new)
@@ -48,7 +49,9 @@ class Home(Ui):
         self.section2_button_edit_stream.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         self.section2_button_edit_stream.clicked.connect(self.editar)
         self.section2_button_delete_stream = QPushButton("Deletar Fluxo  X")
+        self.section2_button_delete_stream.clicked.connect(self.delete)
         self.section2_button_start_stream = QPushButton("Start Fluxo  ▶")
+        self.section2_button_start_stream.clicked.connect(self.start)
 
         self.section2.addWidget(self.section2_button_edit_stream)
         self.section2.addWidget(self.section2_button_delete_stream)
@@ -59,14 +62,14 @@ class Home(Ui):
 
         self.show()
 
-    def open_new_stream_modal(self):
+    def openNewStreamModal(self):
         state_modal = self.state_modal(self)
         state_modal.close()
         self.nova_janela = Modal_New_Stream(state_modal)
-        self.nova_janela.atualizar_info.connect(self.itens_to_table)
+        self.nova_janela.atualizar_info.connect(self.itensToTable)
         self.nova_janela.show()
 
-    def itens_to_table(self):
+    def itensToTable(self):
         arquivos = Configs.arquivo_leitura()
 
         self.section1_table.setRowCount(0)
@@ -86,6 +89,30 @@ class Home(Ui):
             state_modal.close()
             self.nova_janela = Modal_New_Stream(state_modal, int(select[0].row() + 1))
             self.nova_janela.show()
+
+    def start(self):
+        select = self.section1_table.selectedItems()
+        if select:
+            streams = Configs.arquivo_leitura()
+            streams = streams[select[0].row()]
+            try:
+                self.hide()
+
+                for stream in streams[1:]:
+                    Trigger(stream['type_trigger'], stream['trigger'])
+                    Action(stream['type_action'], stream['action'])
+
+                self.show()
+            except:
+                QMessageBox.information(None, 'Informação', 'Erro ao executar fluxo!')
+
+    def delete(self):
+        select = self.section1_table.selectedItems()
+        if select:
+            streams = Configs.arquivo_leitura()
+            streams.pop(select[0].row())
+            Configs.arquivo_escrita(streams)
+            self.itensToTable()
 
 
     class state_modal:
