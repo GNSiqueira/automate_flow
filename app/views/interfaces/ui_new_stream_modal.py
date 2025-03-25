@@ -26,9 +26,6 @@ class Modal_New_Stream(Ui):
         else:
             self.streams = ['Not Defined!']
 
-
-
-
         self.type_action = None
         self.type_tigger = TypeTrigger.TIME
         self.action = None
@@ -109,7 +106,7 @@ class Modal_New_Stream(Ui):
         self.section2_label_trigger = QLabel("Gatilho")
 
         self.section2_input_trigger.setText('01.00')
-        self.section2_input_trigger.textChanged.connect(lambda text = self.section2_input_trigger.text(): self.validade_input(text=text))
+        self.section2_input_trigger.textChanged.connect(self.validade_input)
 
         self.section2.setAlignment(Alignment.Top.value)
 
@@ -219,8 +216,9 @@ class Modal_New_Stream(Ui):
 
         return super().eventFilter(obj, event)
 
-    def validade_input(self, text):
+    def validade_input(self):
         try:
+            text = self.section2_input_trigger.text()
             numero = float(text)
             texto = text.replace('.', '')
             texto = texto[:-2] + '.' + texto[-2:]
@@ -275,7 +273,7 @@ class Modal_New_Stream(Ui):
         self.section2_input_trigger.setEnabled(False)
         if edit:
             pass
-        else: 
+        else:
             index = self.section2_type_trigger.itemData(index)
 
         self.trigger = None
@@ -318,7 +316,7 @@ class Modal_New_Stream(Ui):
             self.section2_input_trigger.setText('00.00')
             self.section2_input_trigger.setEnabled(True)
             self.section2_type_action.setEnabled(False)
-            self.section2_input_trigger.textChanged.connect(lambda text = self.section2_input_trigger.text(): self.validade_input(text=text))
+            self.section2_input_trigger.textChanged.connect(self.validade_input)
 
     def select_type_action(self, index):
         '''
@@ -414,8 +412,43 @@ class Modal_New_Stream(Ui):
         self.set_name.show()
 
     def selectTableEdit(self, row):
-        self.linha = row
-        
+        self.section_bottom_buttom_add_action.setText('Alterar fluxo!')
+        self.section_bottom_buttom_add_action.clicked.connect()
+
+        # Definindo inputs
+        self.type_trigger = self.streams[self.linha]['type_trigger']
+        for c in TypeTrigger:
+            if c.name == self.type_trigger:
+                self.type_trigger = c
+                break
+
+        self.type_action = self.streams[self.linha]['type_action']
+        for c in TypeAction:
+            if c.name == self.type_action:
+                self.type_action = c
+                break
+
+        self.trigger = self.streams[self.linha]['trigger']
+        self.action = self.streams[self.linha]['action']
+
+        trigger = self.trigger
+
+        # Type Trigger
+        for n, c in enumerate(TypeTrigger):
+            if str(c.name) == str(self.type_trigger.name):
+                self.section2_type_trigger.setCurrentIndex(n)
+                break
+
+        for n, c in enumerate(TypeAction):
+            if str(c.name) == str(self.type_action.name):
+                self.section2_type_action.setCurrentIndex(n)
+                break
+
+
+        self.trigger = trigger
+        self.section2_input_trigger.setText(trigger)
+
+        self.section2_input_action.setText(self.action[0])
 
     def closeEvent(self, event):
         self.atualizar_info.emit()

@@ -305,15 +305,9 @@ class CreateCommand(Ui):
         self.show()
 
     def adicionar_keys(self, key):
-        print()
-        print(self.selector)
 
         self.selector.append(key)
-
         texto = ' + '.join([f'{str(seletor)}' for seletor in self.selector[1:]])
-        print(self.selector)
-        print(key)
-        print(texto)
         self.selector[0] = texto
         self.label.setText(texto)
 
