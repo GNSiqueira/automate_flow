@@ -18,7 +18,7 @@ def Trigger(type_trigger, trigger):
 
         return False
 
-    def monitorarTecla(tecla="f1"):
+    def monitorarTecla(tecla="k"):
         print(f"Monitorando a tecla '{tecla}'... Pressione ESC para sair.")
 
         while True:
@@ -26,7 +26,7 @@ def Trigger(type_trigger, trigger):
                 print(f"Tecla '{tecla}' pressionada!")
                 break
 
-            sleep(0.2)
+            sleep(0.1)
         return True
 
     def monitorarMouse():

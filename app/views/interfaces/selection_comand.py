@@ -20,35 +20,29 @@ class SelectionCommand(Ui):
         comands = {
             # Manipulação de texto
             'Copiar': ['Copiar','ctrl', 'c'],
-            'Cortar': ['Cortar','ctrl', 'x'],
             'Colar': ['Colar','ctrl', 'v'],
             'Colar especial': ['Colar','shift', 'insert'],
-            'Desfazer': ['Desfazer','ctrl', 'z'],
-            'Refazer': ['Refazer','ctrl', 'y'],
             'Selecionar tudo': ['Selecionar tudo','ctrl', 'a'],
 
             # Navegação (janelas e abas)
             'Alterar janela': ['Alterar janela','alt', 'tab'],
             'Explorador de arquivos': ['Explorador de arquivos','win', 'e'],
-            'Fechar programa': ['Fechar programa','alt', 'f4'],
-            'Abrir o Explorador de Tarefas (Visão de Tarefas)': ['Abrir o Explorador de Tarefas (Visão de Tarefas)','win', 'tab'],
+            'Alt mais F4': ['Alt mais F4','alt', 'f4'],
             'Minimizar todas as janelas': ['Minimizar todas as janelas','win', 'd'],
             'Bloquear tela': ['Bloquear tela','win', 'l'],
-            'Reabrir aba fechada (Navegador)': ['Reabrir aba fechada (Navegador)','ctrl', 'shift', 't'],
             'Fechar aba (Navegador)': ['Fechar aba (Navegador)','ctrl', 'w'],
             'Guia anônima (Navegador)': ['Guia anônima (Navegador)','ctrl', 'shift', 'n'],
-            'Nova aba (Navegador)': ['Nova aba (Navegador)','ctrl', 'c'],  # Talvez revisar esse atalho!
+            'Nova aba (Navegador)': ['Nova aba (Navegador)','ctrl', 't'],  # Talvez revisar esse atalho!
 
             # Comandos específicos do Windows
             'Abrir configurações do sistema': ['Abrir configurações do sistema','win', 'i'],
-            'Abrir Gerenciador de Tarefas': ['Abrir Gerenciador de Tarefas','ctrl', 'shift', 'esc'],
             'Abrir histórico de área de transferência': ['Abrir histórico de área de transferência','win', 'v'],
             'Abrir a linha de comando (Executar)': ['Abrir a linha de comando (Executar)','win', 'r'],
-            'Abrir Barra de Emojis': ['Abrir Barra de Emojis','win', '.'],  # ou ['win', ';']
 
             # Outros comandos úteis
             'Tab para cima': ['Tab para cima','shift', 'tab'],
             'Tab': ['Tab','tab'],
+            'Enter': ['Enter','enter'],
             'Seta para baixo': ['Seta para baixo','down'],
             'Seta para cima': ['Seta para cima','up'],
             'Seta para a esquerda': ['Seta para a esquerda','left'],

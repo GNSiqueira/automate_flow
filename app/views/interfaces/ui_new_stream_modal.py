@@ -30,7 +30,7 @@ class Modal_New_Stream(Ui):
         self.type_action = None
         self.type_tigger = TypeTrigger.TIME
         self.action = None
-        self.trigger = '01.00'
+        self.trigger = '00.05'
 
 
         self.setWindowTitle(f"Automate Flow - {self.streams[0]}")
@@ -106,7 +106,7 @@ class Modal_New_Stream(Ui):
         self.section2_label_action = QLabel("Ação")
         self.section2_label_trigger = QLabel("Gatilho")
 
-        self.section2_input_trigger.setText('01.00')
+        self.section2_input_trigger.setText('00.05')
         self.section2_input_trigger.textChanged.connect(self.validadeInput)
 
         self.section2.setAlignment(Alignment.Top.value)
@@ -367,7 +367,7 @@ class Modal_New_Stream(Ui):
 
             self.section2_type_trigger.setCurrentIndex(2)
             self.section2_type_action.setCurrentIndex(-1)
-            self.section2_input_trigger.setText('01.00')
+            self.section2_input_trigger.setText('00.05')
             self.section2_input_action.setText('')
             self.section2_input_action.setEnabled(True)
 
@@ -383,7 +383,7 @@ class Modal_New_Stream(Ui):
             self.type_action = None
             self.type_tigger = TypeTrigger.TIME
             self.action = None
-            self.trigger = '01.00'
+            self.trigger = '00.05'
         return True
 
     def updateStreamToTable(self):
@@ -408,7 +408,7 @@ class Modal_New_Stream(Ui):
 
             self.section2_type_trigger.setCurrentIndex(2)
             self.section2_type_action.setCurrentIndex(-1)
-            self.section2_input_trigger.setText('01.00')
+            self.section2_input_trigger.setText('00.05')
             self.section2_input_action.setText('')
             self.section2_input_action.setEnabled(True)
 
@@ -424,10 +424,12 @@ class Modal_New_Stream(Ui):
             self.type_action = None
             self.type_tigger = TypeTrigger.TIME
             self.action = None
-            self.trigger = '01.00'
+            self.trigger = '00.05'
 
             self.section_bottom_buttom_add_action.setText('Adicionar Ação!')
+            self.section_bottom_buttom_add_action.clicked.disconnect()
             self.section_bottom_buttom_add_action.clicked.connect(self.addStreamToTable)
+
         return True
 
     def deleteStream(self):
