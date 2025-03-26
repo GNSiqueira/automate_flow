@@ -1,6 +1,7 @@
 from pyautogui import locateOnScreen, click, hotkey
 from time import sleep, time
 import keyboard, shutil, os
+from pynput.keyboard import Controller
 from pynput.mouse import Listener, Button
 from app.utils.configs import Configs
 
@@ -85,8 +86,22 @@ def Action(type_action, action):
         click(action[1], action[2])
 
     elif type_action == "WRITE":
-        keyboard.write(action[0])
+        if os.name != 'nt':
+            keyboard = Controller()
+            for char in str(action[0]):
+                keyboard.type(char)
+            sleep(0.5)
+            return True
+        keyboard.write(str(action[0]))
         sleep(0.5)
+        return True
 
     elif type_action == "COMAND":
-        hotkey(action[1:])
+        c = int(action[1])
+        print(c, type(c))
+        print(action)
+        print(action[2:])
+        while c > 0:
+            hotkey(*action[2:])
+            c -= 1
+            sleep(0.05)

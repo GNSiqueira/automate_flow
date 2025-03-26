@@ -28,7 +28,7 @@ class Modal_New_Stream(Ui):
             self.streams = ['Not Defined!']
 
         self.type_action = None
-        self.type_tigger = TypeTrigger.TIME
+        self.type_trigger = TypeTrigger.TIME
         self.action = None
         self.trigger = '00.05'
 
@@ -201,6 +201,8 @@ class Modal_New_Stream(Ui):
                     def finalityCommand(text, input_action):
                         self.section2_input_action.setText(text)
                         self.action = input_action
+                        self.action.insert(1, 1)
+                        self.opcoesAlternar(alt=True)
                     SelectionCommand(finalityCommand)
 
                 elif self.type_action == TypeAction.OS:
@@ -281,14 +283,13 @@ class Modal_New_Stream(Ui):
         if self.section2_input_trigger.hasMouseTracking():
             self.section2_input_trigger.removeEventFilter(self)
 
-        if not self.section2_input_trigger.signalsBlocked():
-            try:
-                self.section2_input_trigger.textChanged.disconnect()
-            except TypeError:
-                pass
+        try:
+            self.section2_input_trigger.textChanged.disconnect()
+        except RuntimeError:
+            pass  # Ignora se o sinal não estiver conectado
 
         if index == TypeTrigger.IMAGE.name:
-            self.type_tigger = TypeTrigger.IMAGE
+            self.type_trigger = TypeTrigger.IMAGE
             self.section2_type_action.setEnabled(False)
             self.section2_input_trigger.setText('')
             self.section2_input_trigger.setPlaceholderText('Selecionar imagem ...')
@@ -296,7 +297,7 @@ class Modal_New_Stream(Ui):
             self.section2_input_trigger.setEnabled(True)
 
         elif index == TypeTrigger.MOUSE.name:
-            self.type_tigger = TypeTrigger.MOUSE
+            self.type_trigger = TypeTrigger.MOUSE
             self.trigger = 'Clique do mouse'
             self.section2_type_action.setEnabled(False)
             self.section2_input_trigger.setText('Clique do mouse')
@@ -304,7 +305,7 @@ class Modal_New_Stream(Ui):
             self.section2_type_action.setEnabled(True)
 
         elif index == TypeTrigger.KEY.name:
-            self.type_tigger = TypeTrigger.KEY
+            self.type_trigger = TypeTrigger.KEY
             self.trigger = 'Tecla F1'
             self.section2_type_action.setEnabled(False)
             self.section2_input_trigger.setText('Tecla F1')
@@ -312,7 +313,7 @@ class Modal_New_Stream(Ui):
             self.section2_type_action.setEnabled(True)
 
         elif index == TypeTrigger.TIME.name:
-            self.type_tigger = TypeTrigger.TIME
+            self.type_trigger = TypeTrigger.TIME
             self.section2_input_trigger.setText('00.00')
             self.section2_input_trigger.setEnabled(True)
             self.section2_type_action.setEnabled(False)
@@ -333,24 +334,30 @@ class Modal_New_Stream(Ui):
         if index == TypeAction.CLICK.name:
             self.type_action = TypeAction.CLICK
             self.section2_input_action.setEnabled(True)
+            self.opcoesAlternar()
 
         elif index == TypeAction.COMAND.name:
             self.type_action = TypeAction.COMAND
             self.section2_input_action.setEnabled(True)
+            self.opcoesAlternar()
 
         elif index == TypeAction.OS.name:
             self.type_action = TypeAction.OS
             self.section2_input_action.setEnabled(True)
+            self.opcoesAlternar()
 
         elif index == TypeAction.WRITE.name:
             self.type_action = TypeAction.WRITE
             self.section2_input_action.setReadOnly(False)
             self.section2_input_action.setEnabled(True)
+            self.opcoesAlternar(alt=True)
+
+        self.opcoesAlternar()
 
     def addStreamToTable(self):
 
         type_action = self.type_action.name if self.type_action else None
-        type_trigger = self.type_tigger.name if self.type_tigger else None
+        type_trigger = self.type_trigger.name if self.type_trigger else None
         trigger = self.trigger if self.trigger not in ['00.00', '0.00', '.00'] else None
         action = self.section2_input_action.text() if self.section2_input_action.text() != '' else None
 
@@ -380,10 +387,41 @@ class Modal_New_Stream(Ui):
 
             self.streams.append(stream)
 
-            self.type_action = None
-            self.type_tigger = TypeTrigger.TIME
+            if self.type_action == TypeAction.WRITE:
+                if self.option_enter.isChecked:
+                    stream = {
+                        'type_trigger': 'TIME',
+                        'trigger' : '00.05',
+                        'type_action': 'COMAND',
+                        'action': ['Enter', 'enter']
+                    }
+                    self.streams.append(stream)
+                    self.section1_table.insertRow(rows + 1)
+                    self.section1_table.setItem(rows + 1, 0, QTableWidgetItem('COMAND'))
+                    self.section1_table.setItem(rows + 1, 1, QTableWidgetItem('TIME'))
+                    self.section1_table.setItem(rows + 1, 2, QTableWidgetItem('00.05'))
+                    self.section1_table.setItem(rows + 1, 3, QTableWidgetItem('Enter'))
+                elif self.option_tab.isChecked:
+                    stream = {
+                        'type_trigger': 'TIME',
+                        'trigger' : '00.05',
+                        'type_action': 'COMAND',
+                        'action': ['Tab', 'tab']
+                    }
+                    self.streams.append(stream)
+                    self.section1_table.insertRow(rows + 1)
+                    self.section1_table.setItem(rows + 1, 0, QTableWidgetItem('COMAND'))
+                    self.section1_table.setItem(rows + 1, 1, QTableWidgetItem('TIME'))
+                    self.section1_table.setItem(rows + 1, 2, QTableWidgetItem('00.05'))
+                    self.section1_table.setItem(rows + 1, 3, QTableWidgetItem('Tab'))
+
+            self.type_trigger = TypeTrigger.TIME
             self.action = None
             self.trigger = '00.05'
+            self.type_action = None
+
+            self.opcoesAlternar()
+
         return True
 
     def updateStreamToTable(self):
@@ -393,7 +431,7 @@ class Modal_New_Stream(Ui):
             self.section_bottom_buttom_add_action.clicked.connect(self.addStreamToTable)
             return False
         type_action = self.type_action.name if self.type_action else None
-        type_trigger = self.type_tigger.name if self.type_tigger else None
+        type_trigger = self.type_trigger.name if self.type_trigger else None
         trigger = self.trigger if self.trigger not in ['00.00', '0.00', '.00'] else None
         action = self.section2_input_action.text() if self.section2_input_action.text() != '' else None
 
@@ -422,7 +460,7 @@ class Modal_New_Stream(Ui):
             self.streams[self.linha] = stream
 
             self.type_action = None
-            self.type_tigger = TypeTrigger.TIME
+            self.type_trigger = TypeTrigger.TIME
             self.action = None
             self.trigger = '00.05'
 
@@ -520,5 +558,99 @@ class Modal_New_Stream(Ui):
                 Action(stream['type_action'], stream['action'])
 
             self.show()
-        except:
+        except TypeError as e:
+            print(e)
             QMessageBox.information(None, 'Informação', 'Erro ao executar fluxo!')
+
+    def opcoesAMaisWrite(self):
+        self.group_button_1 = QButtonGroup()
+
+        self.option_enter = QRadioButton('Enter')
+        self.option_tab = QRadioButton('Tab')
+
+        self.group_button_1.addButton(self.option_enter)
+        self.group_button_1.addButton(self.option_tab)
+
+        self.section2_options = HLayout(margin=20)
+        self.section2_options.addWidget(self.option_enter)
+        self.section2_options.addWidget(self.option_tab)
+
+        self.section2.addLayout(self.section2_options)
+
+    def opcoesAMaisComand(self):
+        self.option_comand = VLayout(margin=15, spacing=15)
+        self.action[1] = 1
+        self.option_label = QLabel(f"Quantidade de execução: {self.action[1]}")
+        self.option_mais = QPushButton('Mais')
+        self.option_menos = QPushButton('Menos')
+        self.option_comand_horizontal = HLayout(spacing=5)
+
+        def mais():
+            self.action[1] += 1
+            self.option_label.setText(f"Quantidade de execução: {self.action[1]}")
+
+        def menos():
+            if self.action[1] > 1:
+                self.action[1] -= 1
+                self.option_label.setText(f"Quantidade de execução: {self.action[1]}")
+
+        self.option_mais.clicked.connect(lambda: mais())
+        self.option_menos.clicked.connect(lambda: menos())
+
+
+        self.option_comand_horizontal.addWidget(self.option_menos)
+        self.option_comand_horizontal.addWidget(self.option_mais)
+
+        self.option_comand.addWidget(self.option_label)
+        self.option_comand.addLayout(self.option_comand_horizontal)
+
+        self.section2.addLayout(self.option_comand)
+
+    def opcoesAlternar(self, alt = None):
+        if hasattr(self, 'option_comand') and self.option_comand:
+            while self.option_comand_horizontal.count():
+                item = self.option_comand_horizontal.takeAt(0)
+                widget = item.widget()
+                if widget:
+                    widget.deleteLater()
+            self.section2.removeItem(self.option_comand_horizontal)
+            while self.option_comand.count():
+                item = self.option_comand.takeAt(0)
+                widget = item.widget()
+                if widget:
+                    widget.deleteLater()
+            self.section2.removeItem(self.option_comand)
+
+            if hasattr(self, 'option_comand'):
+                del self.option_comand
+            if hasattr(self, 'option_label'):
+                del self.option_label
+            if hasattr(self, 'option_mais'):
+                del self.option_mais
+            if hasattr(self, 'option_menos'):
+                del self.option_menos
+            if hasattr(self, 'option_comand_horizontal'):
+                del self.option_comand_horizontal
+
+        elif hasattr(self, 'section2_options') and self.section2_options:
+            while self.section2_options.count():
+                item = self.section2_options.takeAt(0)
+                widget = item.widget()
+                if widget:
+                    widget.deleteLater()
+            self.section2.removeItem(self.section2_options)
+            del self.section2_options
+
+            if hasattr(self, 'grup_button_1'):
+                del self.grup_button_1
+            if hasattr(self, 'option_enter'):
+                del self.option_enter
+            if hasattr(self, 'option_tab'):
+                del self.option_tab
+
+        if alt == True:
+            if self.type_action == TypeAction.WRITE:
+                self.opcoesAMaisWrite()
+
+            elif self.type_action == TypeAction.COMAND:
+                self.opcoesAMaisComand()
