@@ -122,7 +122,8 @@ class Home(Ui):
                     Action(stream['type_action'], stream['action'])
 
                 self.show()
-            except:
+            except TypeError as e:
+                print(e)
                 QMessageBox.information(None, 'Informação', 'Erro ao executar fluxo!')
 
     def delete(self):

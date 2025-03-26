@@ -306,9 +306,9 @@ class Modal_New_Stream(Ui):
 
         elif index == TypeTrigger.KEY.name:
             self.type_trigger = TypeTrigger.KEY
-            self.trigger = 'Tecla F1'
+            self.trigger = 'Tecla Ctrl'
             self.section2_type_action.setEnabled(False)
-            self.section2_input_trigger.setText('Tecla F1')
+            self.section2_input_trigger.setText('Tecla Ctrl')
             self.section2_input_trigger.setEnabled(False)
             self.section2_type_action.setEnabled(True)
 
@@ -352,7 +352,6 @@ class Modal_New_Stream(Ui):
             self.section2_input_action.setEnabled(True)
             self.opcoesAlternar(alt=True)
 
-        self.opcoesAlternar()
 
     def addStreamToTable(self):
 
@@ -388,12 +387,12 @@ class Modal_New_Stream(Ui):
             self.streams.append(stream)
 
             if self.type_action == TypeAction.WRITE:
-                if self.option_enter.isChecked:
+                if self.option_enter.isChecked() == True:
                     stream = {
                         'type_trigger': 'TIME',
                         'trigger' : '00.05',
                         'type_action': 'COMAND',
-                        'action': ['Enter', 'enter']
+                        'action': ['Enter',"1", 'enter']
                     }
                     self.streams.append(stream)
                     self.section1_table.insertRow(rows + 1)
@@ -401,12 +400,12 @@ class Modal_New_Stream(Ui):
                     self.section1_table.setItem(rows + 1, 1, QTableWidgetItem('TIME'))
                     self.section1_table.setItem(rows + 1, 2, QTableWidgetItem('00.05'))
                     self.section1_table.setItem(rows + 1, 3, QTableWidgetItem('Enter'))
-                elif self.option_tab.isChecked:
+                elif self.option_tab.isChecked() == True:
                     stream = {
                         'type_trigger': 'TIME',
                         'trigger' : '00.05',
                         'type_action': 'COMAND',
-                        'action': ['Tab', 'tab']
+                        'action': ['Tab', "1", 'tab']
                     }
                     self.streams.append(stream)
                     self.section1_table.insertRow(rows + 1)

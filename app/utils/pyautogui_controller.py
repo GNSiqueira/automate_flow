@@ -1,33 +1,30 @@
 from pyautogui import locateOnScreen, click, hotkey
 from time import sleep, time
 import keyboard, shutil, os
-from pynput.keyboard import Controller
+from pynput.keyboard import *
 from pynput.mouse import Listener, Button
 from app.utils.configs import Configs
 
 def Trigger(type_trigger, trigger):
-    def procurarImagem(img, tempo_max=10):
+    def procurarImagem(img, tempo_max=60):
         inicio = time()
 
         while time() - inicio < tempo_max:
             try:
-                locateOnScreen(img, confidence=0.8)
+                locateOnScreen(img, confidence=0.7)
                 return True
             except:
-                print('Imagem não localizada')
-            sleep(0.5)
+                pass
+            sleep(1)
 
-        return False
+        raise TypeError("Imagem não encontrada")
 
-    def monitorarTecla(tecla="k"):
-        print(f"Monitorando a tecla '{tecla}'... Pressione ESC para sair.")
-
+    def monitorarTecla(tecla="ctrl"):
         while True:
             if keyboard.is_pressed(tecla):
-                print(f"Tecla '{tecla}' pressionada!")
                 break
 
-            sleep(0.1)
+        sleep(1)
         return True
 
     def monitorarMouse():
@@ -46,7 +43,7 @@ def Trigger(type_trigger, trigger):
 
     if type_trigger == 'IMAGE':
         path = Configs.repositoriesImage()
-        procurarImagem(os.path.join(path, trigger))
+        return procurarImagem(os.path.join(path, trigger))
 
     elif type_trigger == 'KEY':
         monitorarTecla()
@@ -86,21 +83,18 @@ def Action(type_action, action):
         click(action[1], action[2])
 
     elif type_action == "WRITE":
-        if os.name != 'nt':
-            keyboard = Controller()
-            for char in str(action[0]):
-                keyboard.type(char)
-            sleep(0.5)
-            return True
-        keyboard.write(str(action[0]))
+        # if os.name != 'nt':
+        keyboard = Controller()
+        for char in str(action[0]):
+            keyboard.type(char)
         sleep(0.5)
         return True
+        # keyboard.write(text=action[0], )
+        # sleep(0.5)
+        # return True
 
     elif type_action == "COMAND":
         c = int(action[1])
-        print(c, type(c))
-        print(action)
-        print(action[2:])
         while c > 0:
             hotkey(*action[2:])
             c -= 1
