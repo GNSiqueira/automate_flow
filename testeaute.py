@@ -1,86 +1,104 @@
 import sys
-from PySide6.QtWidgets import QApplication, QVBoxLayout, QHBoxLayout, QRadioButton, QButtonGroup, QPushButton, QLabel, QWidget
+from PySide6.QtWidgets import (QApplication, QWidget, QTableWidget,
+                                QTableWidgetItem, QVBoxLayout, QHeaderView,
+                                QAbstractItemView)
+from PySide6.QtGui import QColor, QFont, QPalette
+from PySide6.QtCore import Qt
 
-class MultiRadioButtonApp(QWidget):
+class ElegantTableWidget(QWidget):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Exemplo com Múltiplos RadioButtons")
+        self.setWindowTitle("Employee Directory")
+        self.setGeometry(100, 100, 800, 500)
+        self.setStyleSheet("background-color: #f4f6f9;")
 
-        self.layout = QVBoxLayout()
+        # Create main layout
+        layout = QVBoxLayout()
 
-        # Grupo 1: Cores
-        self.label_grupo1 = QLabel("Selecione uma cor:")
-        self.layout.addWidget(self.label_grupo1)
-        self.grupo1_layout = QHBoxLayout()
+        # Create table
+        self.table = QTableWidget()
+        layout.addWidget(self.table)
+        self.setLayout(layout)
 
-        self.radio_vermelho = QRadioButton("Vermelho")
-        self.radio_azul = QRadioButton("Azul")
-        self.radio_verde = QRadioButton("Verde")
+        # Prepare data
+        data = [
+            ["Vincent Williamson", 31, "iOS Developer", "Washington"],
+            ["Joseph Smith", 27, "Project Manager", "Somerville, MA"],
+            ["Justin Block", 28, "Front-end Developer", "Los Angeles"],
+            ["Sean Guzman", 26, "Web Designer", "San Francisco"],
+            ["Keith Carter", 30, "Graphic Designer", "New York, NY"],
+            ["Austin Medina", 32, "Photographer", "New York"]
+        ]
 
-        self.grupo1_layout.addWidget(self.radio_vermelho)
-        self.grupo1_layout.addWidget(self.radio_azul)
-        self.grupo1_layout.addWidget(self.radio_verde)
-        self.layout.addLayout(self.grupo1_layout)
+        # Set up table
+        self.table.setColumnCount(4)
+        self.table.setRowCount(len(data))
+        self.table.setHorizontalHeaderLabels(["Full Name", "Age", "Job Title", "Location"])
 
-        self.grupo1 = QButtonGroup()  # Grupo separado para as cores
-        self.grupo1.addButton(self.radio_vermelho)
-        self.grupo1.addButton(self.radio_azul)
-        self.grupo1.addButton(self.radio_verde)
+        # Table global style
+        self.table.setStyleSheet("""
+            QTableWidget {
+                background-color: white;
+                border-radius: 10px;
+                font-family: 'Segoe UI', Arial, sans-serif;
+            }
+            QTableWidget::item {
+                padding: 10px;
+                border-bottom: 1px solid #e0e0e0;
+            }
+        """)
 
-        # Grupo 2: Animais
-        self.label_grupo2 = QLabel("Selecione um animal:")
-        self.layout.addWidget(self.label_grupo2)
-        self.grupo2_layout = QHBoxLayout()
+        # Style table header
+        header = self.table.horizontalHeader()
+        header.setStyleSheet("""
+            QHeaderView::section {
+                background-color: #3a7ca5;
+                color: white;
+                padding: 10px;
+                border: none;
+                font-weight: bold;
+                font-size: 14px;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+            }
+        """)
+        header.setSectionResizeMode(QHeaderView.Stretch)
 
-        self.radio_cachorro = QRadioButton("Cachorro")
-        self.radio_gato = QRadioButton("Gato")
-        self.radio_passaro = QRadioButton("Pássaro")
+        # Populate table
+        for row, row_data in enumerate(data):
+            for col, value in enumerate(row_data):
+                item = QTableWidgetItem(str(value))
+                item.setTextAlignment(Qt.AlignCenter)
+                item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)  # Make items read-only
+                self.table.setItem(row, col, item)
 
-        self.grupo2_layout.addWidget(self.radio_cachorro)
-        self.grupo2_layout.addWidget(self.radio_gato)
-        self.grupo2_layout.addWidget(self.radio_passaro)
-        self.layout.addLayout(self.grupo2_layout)
+        # Table interaction settings
+        self.table.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.table.setSelectionMode(QAbstractItemView.SingleSelection)
+        self.table.setAlternatingRowColors(True)
+        self.table.setShowGrid(False)
 
-        self.grupo2 = QButtonGroup()  # Grupo separado para os animais
-        self.grupo2.addButton(self.radio_cachorro)
-        self.grupo2.addButton(self.radio_gato)
-        self.grupo2.addButton(self.radio_passaro)
+        # Optional: Add some shadow effect
+        self.setStyleSheet("""
+            QWidget {
+                background-color: #f4f6f9;
+                border-radius: 15px;
+                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            }
+        """)
 
-        # Botão para verificar seleções
-        self.botao = QPushButton("Confirmar Seleções")
-        self.botao.clicked.connect(self.verificar_selecoes)
-        self.layout.addWidget(self.botao)
+def main():
+    app = QApplication(sys.argv)
 
-        # Label para mostrar os resultados
-        self.resultado_label = QLabel("")
-        self.layout.addWidget(self.resultado_label)
+    # Set application-wide font
+    font = app.font()
+    font.setFamily('Segoe UI')
+    font.setPointSize(10)
+    app.setFont(font)
 
-        self.setLayout(self.layout)
-
-    def verificar_selecoes(self):
-        # Verifica seleção do grupo 1
-        selecao_grupo1 = ""
-        if self.radio_vermelho.isChecked():
-            selecao_grupo1 = "Vermelho"
-        elif self.radio_azul.isChecked():
-            selecao_grupo1 = "Azul"
-        elif self.radio_verde.isChecked():
-            selecao_grupo1 = "Verde"
-
-        # Verifica seleção do grupo 2
-        selecao_grupo2 = ""
-        if self.radio_cachorro.isChecked():
-            selecao_grupo2 = "Cachorro"
-        elif self.radio_gato.isChecked():
-            selecao_grupo2 = "Gato"
-        elif self.radio_passaro.isChecked():
-            selecao_grupo2 = "Pássaro"
-
-        # Mostra as seleções
-        self.resultado_label.setText(f"Cor selecionada: {selecao_grupo1}\nAnimal selecionado: {selecao_grupo2}")
+    widget = ElegantTableWidget()
+    widget.show()
+    sys.exit(app.exec())
 
 if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    janela = MultiRadioButtonApp()
-    janela.show()
-    sys.exit(app.exec())
+    main()

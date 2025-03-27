@@ -79,6 +79,9 @@ class Modal_New_Stream(Ui):
         expanding_header_table(self.section1_table, 2, expanding=True)
         expanding_header_table(self.section1_table, 3, expanding=True)
 
+        self.section1_table.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self.section1_table.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+
         self.section2 = VLayout(margin=10)
 
         self.section2_input_action = QLineEdit(placeholderText='Ação...')
