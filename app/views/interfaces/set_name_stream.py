@@ -7,14 +7,19 @@ class SetNameStream(Ui):
     atualizar_info = Signal(str)
 
     def __init__(self):
-        super().__init__(alt=190, larg=230, FixedSize=True, layout=Layout.VERTICAL, modal=True)
+        super().__init__(alt=130, larg=230, FixedSize=True, layout=Layout.VERTICAL, modal=True)
 
         self.input_name = QLineEdit(placeholderText='Digite o nome...')
         self.button_confirm = QPushButton('Confirmar')
         self.button_confirm.clicked.connect(self.confirmar)
 
-        self.setup(self.input_name)
-        self.setup(self.button_confirm)
+        layout = QVBoxLayout()
+        layout.setContentsMargins(10, 10, 10, 10)
+        layout.setSpacing(15)
+        layout.addWidget(self.input_name)
+        layout.addWidget(self.button_confirm)
+
+        self.setup(layout)
 
     def confirmar(self):
         arquivos = Configs.arquivo_leitura()
