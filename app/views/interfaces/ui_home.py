@@ -7,55 +7,9 @@ from app.utils.enums import Layout, Alignment
 from app.utils.pyautogui_controller import Action, Trigger
 from app.views.interfaces.ui_new_stream_modal import Modal_New_Stream
 
-styles = """
-
-    QWidget {
-        background-color: white;
-    }
-
-    QTableWidget {
-        background-color: #f7f7f7;
-        border: none;
-    }
-
-    QHeaderView::section {
-        background-color: #2273f5;
-        height: 35px;
-        border-top-left-radius: 10px;
-        border-top-right-radius: 10px;
-        border-bottom-left-radius: 0px;
-        border-bottom-right-radius:
-    }
-
-    QHeaderView::section:pressed {
-        background-color: #2273f5;
-    }
-
-    QHeaderView::section:hover {
-        background-color: #2273f5;
-    }
-
-    QTableWidget::item:selected {
-        background-color: #6ba1f2;
-        color: white;
-    }
-
-    QTableWidget::item {
-        border: none;
-        padding: 10px;
-    }
-
-
-
-"""
-
-
 class Home(Ui):
     def __init__(self):
         super().__init__(layout=Layout.HORIZONTAL, larg=800, alt=500, FixedSize=True)
-
-        self.backgroundRole = QPalette.Window
-        self.setAutoFillBackground(True)
 
         self.section1 = VLayout(margin=20, spacing=10)
 

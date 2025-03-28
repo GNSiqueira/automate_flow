@@ -3,20 +3,38 @@ import json
 
 class Configs:
     @staticmethod
-    def repositories():
+    def repositoryComputer():
         if os.name == 'nt':  # Windows
             repository = os.path.join(os.getenv('APPDATA'), 'automate_flow')
         else:  # Unix (Linux, macOS)
             repository = os.path.join(os.path.expanduser('~'), '.config', 'automate_flow')
 
-        repository = 'config'
+        return repository
 
+    @staticmethod
+    def repositories():
+        repository = Configs.repositoryComputer()
         try:
-            if not os.path.exists(repository):
-                os.makedirs(repository)
-                os.makedirs(os.path.join(repository, 'image'))
+            # if not os.path.exists(repository):
+            #     os.makedirs(repository, exist_ok=True)
+            #     os.makedirs(os.path.join(repository, 'image'), exist_ok=True)
+            if os.path.exists(os.path.join('automate_flow', 'streams.json')):
+                repository = 'automate_flow'
+                return repository
 
-            return repository
+            elif os.path.exists(os.path.join(repository, 'streams.json')):
+                return repository
+
+            elif os.path.exists(os.path.join(repository, 'config.json')):
+                with open(os.path.join(repository, 'config.json'), 'r') as f:
+                    config = json.load(f)
+
+                if os.path.exists(config[0]):
+                    return os.path.join(config[0], 'automate_flow')
+
+            else:
+                return False
+
         except Exception as e:
             print('Erro ao criar repositório:', e)
             return None
@@ -50,23 +68,49 @@ class Configs:
 
     @staticmethod
     def arquivo_escrita(arquivo):
-        Configs.__validar_arquivo()
         with open(os.path.join(Configs.repositories(), 'streams.json'), 'w') as f:
             json.dump(arquivo, f, indent=2)
         return True
 
     @staticmethod
     def arquivo_leitura() -> list:
-        Configs.__validar_arquivo()
         with open(os.path.join(Configs.repositories(), 'streams.json'), 'r') as f:
             config = json.load(f)
         return config
 
     @staticmethod
-    def __validar_arquivo():
-        path = os.path.join(Configs.repositories(), 'streams.json')
+    def computador():
+        repository = Configs.repositoryComputer()
+        os.makedirs(repository, exist_ok=True)
+        os.makedirs(os.path.join(repository, 'image'), exist_ok=True)
+        with open(os.path.join(repository, 'streams.json'), 'w') as f:
+            json.dump([], f, indent=2)
 
-        if not os.path.exists(path):
-            with open(path, 'w') as f:
-                json.dump((), f, indent=2)
-            print('Arquivo streams.json criado com sucesso.')
+    @staticmethod
+    def local():
+        repository = 'automate_flow'
+        os.makedirs(repository, exist_ok=True)
+        os.makedirs(os.path.join(repository, 'image'), exist_ok=True)
+        with open(os.path.join(repository, 'streams.json'), 'w') as f:
+            json.dump([], f, indent=2)
+
+    @staticmethod
+    def diferente(path):
+        repository = Configs.repositoryComputer()
+        os.makedirs(repository, exist_ok=True)
+        with open(os.path.join(repository, 'config.json'), 'w') as f:
+            json.dump([path], f, indent=2)
+
+        repository = os.path.join(path, 'automate_flow')
+        os.makedirs(repository, exist_ok=True)
+        os.makedirs(os.path.join(repository, 'image'), exist_ok=True)
+        with open(os.path.join(repository, 'streams.json'), 'w') as f:
+            json.dump([], f, indent=2)
+
+    @staticmethod
+    def existente(path):
+        repository = Configs.repositoryComputer()
+        os.makedirs(repository, exist_ok=True)
+        with open(os.path.join(repository, 'config.json'), 'w') as f:
+            json.dump([path], f, indent=2)
+
