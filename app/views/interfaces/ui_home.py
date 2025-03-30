@@ -120,6 +120,7 @@ class Home(Ui):
 
                 self.show()
             except TypeError as e:
+                self.show()
                 print(e)
                 QMessageBox.information(None, 'Informação', 'Erro ao executar fluxo!')
 

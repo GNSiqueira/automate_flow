@@ -10,7 +10,7 @@ from app.utils.locate_image import localizar_imagem
 def Trigger(type_trigger, trigger):
     def procurarImagem(img, tempo_max=5):
         inicio = time()
-
+        sleep(0.5)
         while time() - inicio < tempo_max:
             if localizar_imagem(img):
                 return True
@@ -75,7 +75,9 @@ def Action(type_action, action):
                 os.remove(action[1])
 
         elif action[0] == 'Criar':
-            os.mkdir(os.path.join(action[1], action[2]))
+            path = os.path.join(action[1], action[2])
+            if not os.path.exists(path):
+                os.mkdir(path)
 
         elif action[0] == 'Adicionar Comando':
             os.system(action[1])
@@ -90,9 +92,6 @@ def Action(type_action, action):
             keyboard.type(char)
         sleep(0.5)
         return True
-        # keyboard.write(text=action[0], )
-        # sleep(0.5)
-        # return True
 
     elif type_action == "COMAND":
         c = int(action[1])

@@ -1,3 +1,4 @@
+from typing import Literal
 from qt_core import *
 from app.views.ui import Ui
 from app.utils.util import *
@@ -43,6 +44,13 @@ class Modal_New_Stream(Ui):
         self.central_layout.setSpacing(0)
         self.section = HLayout()
         self.section1 = VLayout(margin=10)
+
+        self.butons_superior = HLayout(spacing=5, margin=10)
+
+        self.up = QPushButton('Up')
+        self.up.clicked.connect(lambda: self.alterarOrdem('up'))
+        self.down = QPushButton('Down')
+        self.down.clicked.connect(lambda: self.alterarOrdem('down'))
 
         self.section1_table = QTableWidget(0, 4)
         self.section1_table.setHorizontalHeaderLabels(['Tipo Ação', 'Tipo Gatilho', 'Gatilho', 'Ação'])
@@ -125,6 +133,10 @@ class Modal_New_Stream(Ui):
         self.section_bottom_buttom_add_action.clicked.connect(self.addStreamToTable)
 
         # ADICIONANDO AO LAYOUT
+        self.butons_superior.addWidget(self.up)
+        self.butons_superior.addWidget(self.down)
+
+        self.section1.addLayout(self.butons_superior)
         self.section1.addWidget(self.section1_table)
 
         self.section2.addWidget(self.section2_type_trigger_label)
@@ -561,6 +573,7 @@ class Modal_New_Stream(Ui):
 
             self.show()
         except TypeError as e:
+            self.show()
             print(e)
             QMessageBox.information(None, 'Informação', 'Erro ao executar fluxo!')
 
@@ -656,3 +669,72 @@ class Modal_New_Stream(Ui):
 
             elif self.type_action == TypeAction.COMAND:
                 self.opcoesAMaisComand()
+
+
+    def alterarOrdem(self, ordem:Literal['up', 'down']):
+        select = self.section1_table.selectedItems()
+
+        if select:
+            select = int(select[0].row() + 1)
+
+            if ordem == 'up' and select > 1:
+                atual = {
+                    'type_trigger': self.streams[select]['type_trigger'],
+                    'trigger' : self.streams[select]['trigger'],
+                    'type_action': self.streams[select]['type_action'],
+                    'action': self.streams[select]['action']
+                }
+
+                superior = {
+                    'type_trigger': self.streams[select - 1]['type_trigger'],
+                    'trigger' : self.streams[select - 1]['trigger'],
+                    'type_action': self.streams[select - 1]['type_action'],
+                    'action': self.streams[select - 1]['action']
+                }
+                self.streams[select] = superior
+                self.streams[select - 1] = atual
+
+                select -= 1
+                self.section1_table.setCurrentCell(select - 1, 0)
+
+                self.section1_table.setItem(select, 0, QTableWidgetItem(str(superior['type_action'])))
+                self.section1_table.setItem(select, 1, QTableWidgetItem(str(superior['type_trigger'])))
+                self.section1_table.setItem(select, 2, QTableWidgetItem(str(superior['trigger'])))
+                self.section1_table.setItem(select, 3, QTableWidgetItem(str(superior['action'][0])))
+
+                self.section1_table.setItem(select - 1, 0, QTableWidgetItem(str(atual['type_action'])))
+                self.section1_table.setItem(select - 1, 1, QTableWidgetItem(str(atual['type_trigger'])))
+                self.section1_table.setItem(select - 1, 2, QTableWidgetItem(str(atual['trigger'])))
+                self.section1_table.setItem(select - 1, 3, QTableWidgetItem(str(atual['action'][0])))
+
+            elif ordem == 'down':
+                atual = {
+                    'type_trigger': self.streams[select]['type_trigger'],
+                    'trigger' : self.streams[select]['trigger'],
+                    'type_action': self.streams[select]['type_action'],
+                    'action': self.streams[select]['action']
+                }
+
+                inferior = {
+                    'type_trigger': self.streams[select + 1]['type_trigger'],
+                    'trigger' : self.streams[select + 1]['trigger'],
+                    'type_action': self.streams[select + 1]['type_action'],
+                    'action': self.streams[select + 1]['action']
+                }
+                self.streams[select] = inferior
+                self.streams[select + 1] = atual
+
+                select -= 1
+                self.section1_table.setCurrentCell(select + 1, 0)
+
+                self.section1_table.setItem(select, 0, QTableWidgetItem(str(inferior['type_action'])))
+                self.section1_table.setItem(select, 1, QTableWidgetItem(str(inferior['type_trigger'])))
+                self.section1_table.setItem(select, 2, QTableWidgetItem(str(inferior['trigger'])))
+                self.section1_table.setItem(select, 3, QTableWidgetItem(str(inferior['action'][0])))
+
+                self.section1_table.setItem(select + 1, 0, QTableWidgetItem(str(atual['type_action'])))
+                self.section1_table.setItem(select + 1, 1, QTableWidgetItem(str(atual['type_trigger'])))
+                self.section1_table.setItem(select + 1, 2, QTableWidgetItem(str(atual['trigger'])))
+                self.section1_table.setItem(select + 1, 3, QTableWidgetItem(str(atual['action'][0])))
+
+
