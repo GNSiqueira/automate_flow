@@ -78,6 +78,13 @@ class SelectionPrint(QMainWindow):
             x1, x2 = min(x1, x2), max(x1, x2)
             y1, y2 = min(y1, y2), max(y1, y2)
 
+            if x2 - x1 < 20 or y2 - y1 < 20:
+                self.show()
+                self.setWindowOpacity(0.5)
+                self.clear_lines()
+                QMessageBox.information(None, 'Informação', 'Selecione uma área maior!')
+                return
+
             bbox = (x1, y1, x2, y2)
             screenshot = ImageGrab.grab(bbox)
 
