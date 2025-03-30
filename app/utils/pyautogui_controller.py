@@ -1,28 +1,29 @@
-from pyautogui import locateOnScreen, click, hotkey
+from pyautogui import click, hotkey
 from time import sleep, time
-import keyboard, shutil, os
-from pynput.keyboard import *
+import shutil, os
+from pynput import keyboard
+from pynput.keyboard import Controller
 from pynput.mouse import Listener, Button
 from app.utils.configs import Configs
+from app.utils.locate_image import localizar_imagem
 
 def Trigger(type_trigger, trigger):
-    def procurarImagem(img, tempo_max=60):
+    def procurarImagem(img, tempo_max=5):
         inicio = time()
 
         while time() - inicio < tempo_max:
-            try:
-                locateOnScreen(img, confidence=0.7)
+            if localizar_imagem(img):
                 return True
-            except:
-                pass
-            sleep(1)
 
         raise TypeError("Imagem não encontrada")
 
     def monitorarTecla(tecla="ctrl"):
-        while True:
-            if keyboard.is_pressed(tecla):
-                break
+        def on_press(key):
+            if hasattr(key, 'name') and key.name == tecla:
+                return False
+
+        with keyboard.Listener(on_press=on_press) as listener:
+            listener.join()
 
         sleep(1)
         return True
